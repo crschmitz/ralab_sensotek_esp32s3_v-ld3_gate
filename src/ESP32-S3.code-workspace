@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"name": "ESP32-S3-Mini Door Sensor Sensotek",
+			"path": ".."
+		}
+	],
+	"settings": {}
+}

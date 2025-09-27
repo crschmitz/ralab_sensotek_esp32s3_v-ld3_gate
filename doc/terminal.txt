@@ -1,0 +1,1036 @@
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 382
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 416
+platform    : 0x000A6432
+frameNumber : 211744
+tCpuCycles  : 0
+numDetectObj: 4
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 60 bytes
+  Raw header: 2D 01 00 00 3C 00 00 00 
+[PCEXT] TLV type=301, payload=60 bytes, points=4, format=4h2B (10B)
+Raw1: x=0.523 y=0.323 z=0.000 dop=0.0 snr=13.5 noise=56.0
+Raw1: x=0.566 y=0.350 z=-0.043 dop=0.0 snr=24.2 noise=57.0
+Raw1: x=0.581 y=0.347 z=-0.043 dop=0.0 snr=26.0 noise=57.0
+Raw1: x=0.609 y=0.357 z=-0.045 dop=0.0 snr=20.5 noise=56.0
+TLV #2
+  Offset : 108
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 372
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 416
+platform    : 0x000A6432
+frameNumber : 211745
+tCpuCycles  : 0
+numDetectObj: 4
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 60 bytes
+  Raw header: 2D 01 00 00 3C 00 00 00 
+[PCEXT] TLV type=301, payload=60 bytes, points=4, format=4h2B (10B)
+Raw1: x=0.504 y=0.340 z=0.000 dop=0.0 snr=12.8 noise=56.0
+Raw1: x=0.557 y=0.361 z=0.000 dop=0.0 snr=22.2 noise=57.0
+Raw1: x=0.576 y=0.352 z=-0.043 dop=0.0 snr=24.0 noise=57.0
+Raw1: x=0.609 y=0.350 z=0.000 dop=0.0 snr=18.2 noise=57.0
+TLV #2
+  Offset : 108
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 372
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 416
+platform    : 0x000A6432
+frameNumber : 211746
+tCpuCycles  : 0
+numDetectObj: 4
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 60 bytes
+  Raw header: 2D 01 00 00 3C 00 00 00 
+[PCEXT] TLV type=301, payload=60 bytes, points=4, format=4h2B (10B)
+Raw1: x=0.470 y=0.373 z=-0.038 dop=0.0 snr=11.2 noise=56.0
+Raw1: x=0.536 y=0.379 z=0.000 dop=0.0 snr=20.8 noise=56.0
+Raw1: x=0.553 y=0.377 z=0.000 dop=0.0 snr=22.2 noise=56.0
+Raw1: x=0.594 y=0.381 z=0.000 dop=0.0 snr=15.2 noise=57.0
+TLV #2
+  Offset : 108
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 372
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 416
+platform    : 0x000A6432
+frameNumber : 211747
+tCpuCycles  : 0
+numDetectObj: 3
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 50 bytes
+  Raw header: 2D 01 00 00 32 00 00 00 
+[PCEXT] TLV type=301, payload=50 bytes, points=3, format=4h2B (10B)
+Raw1: x=0.525 y=0.372 z=0.000 dop=0.0 snr=17.0 noise=55.0
+Raw1: x=0.534 y=0.393 z=0.000 dop=0.0 snr=17.2 noise=55.0
+Raw1: x=0.627 y=0.342 z=0.092 dop=0.0 snr=10.8 noise=56.0
+TLV #2
+  Offset : 98
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 362
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 416
+platform    : 0x000A6432
+frameNumber : 211748
+tCpuCycles  : 0
+numDetectObj: 5
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 70 bytes
+  Raw header: 2D 01 00 00 46 00 00 00 
+[PCEXT] TLV type=301, payload=70 bytes, points=5, format=4h2B (10B)
+Raw1: x=0.758 y=1.829 z=0.000 dop=0.0 snr=11.2 noise=54.0
+Raw1: x=0.517 y=0.330 z=0.000 dop=0.0 snr=16.2 noise=57.0
+Raw1: x=0.552 y=0.349 z=0.000 dop=0.0 snr=25.0 noise=58.0
+Raw1: x=0.568 y=0.339 z=-0.043 dop=0.0 snr=25.8 noise=58.0
+Raw1: x=0.622 y=0.311 z=-0.045 dop=0.0 snr=19.0 noise=58.0
+TLV #2
+  Offset : 118
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 382
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211749
+tCpuCycles  : 0
+numDetectObj: 6
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 80 bytes
+  Raw header: 2D 01 00 00 50 00 00 00 
+[PCEXT] TLV type=301, payload=80 bytes, points=6, format=4h2B (10B)
+Raw1: x=0.785 y=1.833 z=-0.128 dop=0.0 snr=12.0 noise=54.0
+Raw1: x=0.772 y=1.861 z=-0.395 dop=0.0 snr=9.8 noise=54.0
+Raw1: x=0.516 y=0.329 z=0.000 dop=0.0 snr=14.5 noise=58.0
+Raw1: x=0.552 y=0.351 z=-0.042 dop=0.0 snr=23.2 noise=59.0
+Raw1: x=0.569 y=0.346 z=0.000 dop=0.0 snr=24.5 noise=59.0
+Raw1: x=0.611 y=0.341 z=-0.045 dop=0.0 snr=17.8 noise=59.0
+TLV #2
+  Offset : 128
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 392
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211750
+tCpuCycles  : 0
+numDetectObj: 7
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 90 bytes
+  Raw header: 2D 01 00 00 5A 00 00 00 
+[PCEXT] TLV type=301, payload=90 bytes, points=7, format=4h2B (10B)
+Raw1: x=0.769 y=1.801 z=0.126 dop=0.0 snr=12.2 noise=55.0
+Raw1: x=0.744 y=1.839 z=0.127 dop=0.0 snr=16.0 noise=54.0
+Raw1: x=0.664 y=1.918 z=0.000 dop=0.0 snr=12.5 noise=54.0
+Raw1: x=0.515 y=0.323 z=-0.039 dop=0.0 snr=13.0 noise=58.0
+Raw1: x=0.550 y=0.353 z=0.000 dop=0.0 snr=21.0 noise=60.0
+Raw1: x=0.568 y=0.344 z=0.000 dop=0.0 snr=21.2 noise=61.0
+Raw1: x=0.591 y=0.379 z=0.000 dop=0.0 snr=14.0 noise=61.0
+TLV #2
+  Offset : 138
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 402
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211751
+tCpuCycles  : 0
+numDetectObj: 7
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 90 bytes
+  Raw header: 2D 01 00 00 5A 00 00 00 
+[PCEXT] TLV type=301, payload=90 bytes, points=7, format=4h2B (10B)
+Raw1: x=0.776 y=1.792 z=0.126 dop=0.0 snr=12.0 noise=55.0
+Raw1: x=0.788 y=1.811 z=0.127 dop=0.0 snr=15.5 noise=54.0
+Raw1: x=0.725 y=1.888 z=0.000 dop=0.0 snr=11.0 noise=54.0
+Raw1: x=0.518 y=0.317 z=-0.039 dop=0.0 snr=12.0 noise=59.0
+Raw1: x=0.563 y=0.343 z=0.000 dop=0.0 snr=21.0 noise=60.0
+Raw1: x=0.588 y=0.329 z=0.000 dop=0.0 snr=21.8 noise=61.0
+Raw1: x=0.670 y=0.266 z=0.000 dop=0.0 snr=15.8 noise=61.0
+TLV #2
+  Offset : 138
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 402
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 416
+platform    : 0x000A6432
+frameNumber : 211752
+tCpuCycles  : 0
+numDetectObj: 4
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 60 bytes
+  Raw header: 2D 01 00 00 3C 00 00 00 
+[PCEXT] TLV type=301, payload=60 bytes, points=4, format=4h2B (10B)
+Raw1: x=0.683 y=1.802 z=0.249 dop=0.0 snr=9.0 noise=55.0
+Raw1: x=0.756 y=1.787 z=0.380 dop=0.0 snr=12.0 noise=54.0
+Raw1: x=0.570 y=0.325 z=-0.042 dop=0.0 snr=18.5 noise=58.0
+Raw1: x=0.628 y=0.266 z=-0.044 dop=0.0 snr=18.8 noise=59.0
+TLV #2
+  Offset : 108
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 372
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211753
+tCpuCycles  : 0
+numDetectObj: 7
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 90 bytes
+  Raw header: 2D 01 00 00 5A 00 00 00 
+[PCEXT] TLV type=301, payload=90 bytes, points=7, format=4h2B (10B)
+Raw1: x=0.684 y=1.778 z=0.374 dop=0.0 snr=10.0 noise=54.0
+Raw1: x=0.801 y=1.762 z=0.380 dop=0.0 snr=12.5 noise=54.0
+Raw1: x=0.505 y=0.339 z=-0.039 dop=0.0 snr=9.8 noise=58.0
+Raw1: x=0.561 y=0.350 z=-0.043 dop=0.0 snr=20.2 noise=58.0
+Raw1: x=0.581 y=0.350 z=-0.043 dop=0.0 snr=20.8 noise=59.0
+Raw1: x=0.691 y=0.259 z=-0.095 dop=0.0 snr=15.5 noise=59.0
+Raw1: x=1.794 y=0.000 z=1.199 dop=0.0 snr=9.2 noise=53.0
+TLV #2
+  Offset : 138
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 402
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211754
+tCpuCycles  : 0
+numDetectObj: 6
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 80 bytes
+  Raw header: 2D 01 00 00 50 00 00 00 
+[PCEXT] TLV type=301, payload=80 bytes, points=6, format=4h2B (10B)
+Raw1: x=0.735 y=1.803 z=0.000 dop=0.0 snr=12.8 noise=54.0
+Raw1: x=0.807 y=1.798 z=0.000 dop=0.0 snr=15.5 noise=54.0
+Raw1: x=1.198 y=1.559 z=0.522 dop=0.0 snr=11.0 noise=53.0
+Raw1: x=0.550 y=0.395 z=0.000 dop=0.0 snr=18.5 noise=59.0
+Raw1: x=0.558 y=0.411 z=0.000 dop=0.0 snr=20.5 noise=60.0
+Raw1: x=0.570 y=0.446 z=-0.046 dop=0.0 snr=15.8 noise=60.0
+TLV #2
+  Offset : 128
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 392
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211755
+tCpuCycles  : 0
+numDetectObj: 6
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 80 bytes
+  Raw header: 2D 01 00 00 50 00 00 00 
+[PCEXT] TLV type=301, payload=80 bytes, points=6, format=4h2B (10B)
+Raw1: x=0.703 y=1.818 z=0.000 dop=0.0 snr=11.5 noise=54.0
+Raw1: x=0.770 y=1.820 z=0.000 dop=0.0 snr=14.5 noise=54.0
+Raw1: x=0.551 y=0.366 z=-0.043 dop=0.0 snr=22.8 noise=59.0
+Raw1: x=0.550 y=0.385 z=-0.043 dop=0.0 snr=23.2 noise=60.0
+Raw1: x=0.570 y=0.418 z=-0.046 dop=0.0 snr=16.5 noise=60.0
+Raw1: x=0.520 y=0.325 z=-0.039 dop=0.0 snr=12.5 noise=58.0
+TLV #2
+  Offset : 128
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 392
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211756
+tCpuCycles  : 0
+numDetectObj: 7
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 90 bytes
+  Raw header: 2D 01 00 00 5A 00 00 00 
+[PCEXT] TLV type=301, payload=90 bytes, points=7, format=4h2B (10B)
+Raw1: x=0.746 y=1.807 z=0.000 dop=0.0 snr=12.0 noise=55.0
+Raw1: x=0.783 y=1.816 z=0.000 dop=0.0 snr=15.5 noise=54.0
+Raw1: x=0.797 y=1.849 z=0.000 dop=0.0 snr=10.8 noise=54.0
+Raw1: x=0.512 y=0.341 z=-0.040 dop=0.0 snr=12.8 noise=57.0
+Raw1: x=0.547 y=0.383 z=-0.043 dop=0.0 snr=23.2 noise=58.0
+Raw1: x=0.544 y=0.400 z=0.000 dop=0.0 snr=24.5 noise=59.0
+Raw1: x=0.569 y=0.416 z=-0.045 dop=0.0 snr=17.5 noise=59.0
+TLV #2
+  Offset : 138
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 402
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211757
+tCpuCycles  : 0
+numDetectObj: 7
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 90 bytes
+  Raw header: 2D 01 00 00 5A 00 00 00 
+[PCEXT] TLV type=301, payload=90 bytes, points=7, format=4h2B (10B)
+Raw1: x=0.626 y=1.889 z=0.128 dop=0.0 snr=12.2 noise=56.0
+Raw1: x=0.516 y=1.959 z=0.130 dop=0.0 snr=9.5 noise=55.0
+Raw1: x=0.674 y=1.829 z=0.125 dop=0.0 snr=10.0 noise=55.0
+Raw1: x=0.514 y=0.347 z=0.000 dop=0.0 snr=19.0 noise=56.0
+Raw1: x=0.547 y=0.375 z=0.000 dop=0.0 snr=28.5 noise=57.0
+Raw1: x=0.545 y=0.391 z=0.000 dop=0.0 snr=29.0 noise=58.0
+Raw1: x=0.545 y=0.429 z=0.000 dop=0.0 snr=22.0 noise=59.0
+TLV #2
+  Offset : 138
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 402
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211758
+tCpuCycles  : 0
+numDetectObj: 6
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 80 bytes
+  Raw header: 2D 01 00 00 50 00 00 00 
+[PCEXT] TLV type=301, payload=80 bytes, points=6, format=4h2B (10B)
+Raw1: x=0.712 y=1.815 z=0.125 dop=0.0 snr=10.8 noise=54.0
+Raw1: x=0.672 y=1.865 z=0.000 dop=0.0 snr=14.0 noise=54.0
+Raw1: x=0.518 y=0.344 z=0.000 dop=0.0 snr=20.5 noise=56.0
+Raw1: x=0.553 y=0.362 z=0.000 dop=0.0 snr=29.0 noise=59.0
+Raw1: x=0.555 y=0.367 z=0.000 dop=0.0 snr=29.2 noise=60.0
+Raw1: x=0.575 y=0.373 z=-0.044 dop=0.0 snr=21.8 noise=60.0
+TLV #2
+  Offset : 128
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 392
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211759
+tCpuCycles  : 0
+numDetectObj: 6
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 80 bytes
+  Raw header: 2D 01 00 00 50 00 00 00 
+[PCEXT] TLV type=301, payload=80 bytes, points=6, format=4h2B (10B)
+Raw1: x=0.701 y=1.810 z=0.251 dop=0.0 snr=10.5 noise=54.0
+Raw1: x=0.695 y=1.857 z=0.000 dop=0.0 snr=13.5 noise=54.0
+Raw1: x=0.517 y=0.344 z=0.000 dop=0.0 snr=19.0 noise=57.0
+Raw1: x=0.556 y=0.356 z=-0.042 dop=0.0 snr=28.0 noise=59.0
+Raw1: x=0.562 y=0.359 z=0.000 dop=0.0 snr=28.8 noise=60.0
+Raw1: x=0.598 y=0.351 z=-0.045 dop=0.0 snr=21.2 noise=60.0
+TLV #2
+  Offset : 128
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 392
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211760
+tCpuCycles  : 0
+numDetectObj: 7
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 90 bytes
+  Raw header: 2D 01 00 00 5A 00 00 00 
+[PCEXT] TLV type=301, payload=90 bytes, points=7, format=4h2B (10B)
+Raw1: x=0.549 y=1.943 z=-0.130 dop=0.0 snr=10.8 noise=54.0
+Raw1: x=0.712 y=1.815 z=0.125 dop=0.0 snr=12.8 noise=54.0
+Raw1: x=0.652 y=1.864 z=0.127 dop=0.0 snr=15.2 noise=54.0
+Raw1: x=0.523 y=0.334 z=0.000 dop=0.0 snr=18.5 noise=58.0
+Raw1: x=0.558 y=0.353 z=-0.042 dop=0.0 snr=27.8 noise=59.0
+Raw1: x=0.566 y=0.355 z=0.000 dop=0.0 snr=28.0 noise=61.0
+Raw1: x=0.604 y=0.347 z=0.000 dop=0.0 snr=20.8 noise=61.0
+TLV #2
+  Offset : 138
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 402
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211761
+tCpuCycles  : 0
+numDetectObj: 6
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 80 bytes
+  Raw header: 2D 01 00 00 50 00 00 00 
+[PCEXT] TLV type=301, payload=80 bytes, points=6, format=4h2B (10B)
+Raw1: x=0.759 y=1.818 z=0.127 dop=0.0 snr=10.5 noise=53.0
+Raw1: x=0.512 y=0.700 z=0.056 dop=0.0 snr=9.2 noise=57.0
+Raw1: x=0.534 y=0.362 z=-0.041 dop=0.0 snr=25.8 noise=56.0
+Raw1: x=0.518 y=0.368 z=-0.041 dop=0.0 snr=25.5 noise=56.0
+Raw1: x=0.547 y=0.370 z=-0.224 dop=0.0 snr=13.8 noise=56.0
+Raw1: x=0.513 y=0.328 z=-0.039 dop=0.0 snr=15.2 noise=56.0
+TLV #2
+  Offset : 128
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 392
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211762
+tCpuCycles  : 0
+numDetectObj: 6
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 80 bytes
+  Raw header: 2D 01 00 00 50 00 00 00 
+[PCEXT] TLV type=301, payload=80 bytes, points=6, format=4h2B (10B)
+Raw1: x=0.672 y=1.870 z=-0.257 dop=0.0 snr=9.2 noise=53.0
+Raw1: x=0.556 y=0.368 z=0.000 dop=0.0 snr=27.5 noise=55.0
+Raw1: x=0.603 y=0.533 z=-0.052 dop=0.0 snr=9.2 noise=56.0
+Raw1: x=0.518 y=0.332 z=0.000 dop=0.0 snr=15.5 noise=56.0
+Raw1: x=0.564 y=0.364 z=-0.043 dop=0.0 snr=27.8 noise=57.0
+Raw1: x=0.601 y=0.361 z=-0.045 dop=0.0 snr=20.8 noise=57.0
+TLV #2
+  Offset : 128
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 392
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211763
+tCpuCycles  : 0
+numDetectObj: 7
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 90 bytes
+  Raw header: 2D 01 00 00 5A 00 00 00 
+[PCEXT] TLV type=301, payload=90 bytes, points=7, format=4h2B (10B)
+Raw1: x=0.754 y=1.807 z=0.000 dop=0.0 snr=12.8 noise=54.0
+Raw1: x=0.754 y=1.824 z=0.000 dop=0.0 snr=16.2 noise=53.0
+Raw1: x=0.715 y=1.861 z=-0.258 dop=0.0 snr=11.0 noise=53.0
+Raw1: x=0.552 y=0.369 z=0.000 dop=0.0 snr=27.5 noise=56.0
+Raw1: x=0.555 y=0.372 z=0.000 dop=0.0 snr=28.5 noise=57.0
+Raw1: x=0.574 y=0.391 z=-0.045 dop=0.0 snr=20.8 noise=58.0
+Raw1: x=0.522 y=0.325 z=-0.040 dop=0.0 snr=16.5 noise=56.0
+TLV #2
+  Offset : 138
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 402
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211764
+tCpuCycles  : 0
+numDetectObj: 7
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 90 bytes
+  Raw header: 2D 01 00 00 5A 00 00 00 
+[PCEXT] TLV type=301, payload=90 bytes, points=7, format=4h2B (10B)
+Raw1: x=0.733 y=1.814 z=0.000 dop=0.0 snr=12.2 noise=54.0
+Raw1: x=0.735 y=1.835 z=0.000 dop=0.0 snr=16.0 noise=54.0
+Raw1: x=0.706 y=1.896 z=0.000 dop=0.0 snr=11.0 noise=53.0
+Raw1: x=0.512 y=0.341 z=-0.040 dop=0.0 snr=15.8 noise=57.0
+Raw1: x=0.552 y=0.368 z=-0.043 dop=0.0 snr=26.2 noise=57.0
+Raw1: x=0.560 y=0.372 z=-0.043 dop=0.0 snr=27.8 noise=58.0
+Raw1: x=0.574 y=0.405 z=0.000 dop=0.0 snr=21.0 noise=58.0
+TLV #2
+  Offset : 138
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 402
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211765
+tCpuCycles  : 0
+numDetectObj: 7
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 90 bytes
+  Raw header: 2D 01 00 00 5A 00 00 00 
+[PCEXT] TLV type=301, payload=90 bytes, points=7, format=4h2B (10B)
+Raw1: x=0.727 y=1.813 z=0.000 dop=0.0 snr=10.8 noise=55.0
+Raw1: x=0.785 y=1.821 z=0.000 dop=0.0 snr=14.5 noise=54.0
+Raw1: x=0.734 y=1.882 z=-0.130 dop=0.0 snr=10.8 noise=53.0
+Raw1: x=0.515 y=0.332 z=0.000 dop=0.0 snr=14.8 noise=58.0
+Raw1: x=0.553 y=0.353 z=-0.042 dop=0.0 snr=24.5 noise=58.0
+Raw1: x=0.559 y=0.350 z=-0.042 dop=0.0 snr=25.0 noise=59.0
+Raw1: x=0.615 y=0.335 z=-0.045 dop=0.0 snr=17.0 noise=59.0
+TLV #2
+  Offset : 138
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 402
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211766
+tCpuCycles  : 0
+numDetectObj: 7
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 90 bytes
+  Raw header: 2D 01 00 00 5A 00 00 00 
+[PCEXT] TLV type=301, payload=90 bytes, points=7, format=4h2B (10B)
+Raw1: x=0.638 y=1.918 z=0.130 dop=0.0 snr=9.2 noise=54.0
+Raw1: x=0.761 y=1.803 z=0.000 dop=0.0 snr=10.0 noise=54.0
+Raw1: x=0.643 y=1.876 z=0.127 dop=0.0 snr=13.8 noise=54.0
+Raw1: x=0.579 y=0.391 z=-0.045 dop=0.0 snr=19.2 noise=58.0
+Raw1: x=0.514 y=0.338 z=0.000 dop=0.0 snr=16.0 noise=56.0
+Raw1: x=0.552 y=0.358 z=0.000 dop=0.0 snr=25.5 noise=58.0
+Raw1: x=0.557 y=0.366 z=0.000 dop=0.0 snr=26.0 noise=58.0
+TLV #2
+  Offset : 138
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 402
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211767
+tCpuCycles  : 0
+numDetectObj: 6
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 80 bytes
+  Raw header: 2D 01 00 00 50 00 00 00 
+[PCEXT] TLV type=301, payload=80 bytes, points=6, format=4h2B (10B)
+Raw1: x=0.601 y=1.907 z=0.000 dop=0.0 snr=11.8 noise=55.0
+Raw1: x=0.547 y=1.948 z=0.262 dop=0.0 snr=9.5 noise=54.0
+Raw1: x=0.549 y=0.377 z=0.000 dop=0.0 snr=20.2 noise=57.0
+Raw1: x=0.564 y=0.381 z=0.000 dop=0.0 snr=22.0 noise=58.0
+Raw1: x=0.584 y=0.412 z=-0.046 dop=0.0 snr=16.5 noise=58.0
+Raw1: x=0.512 y=0.320 z=0.039 dop=0.0 snr=10.5 noise=56.0
+TLV #2
+  Offset : 128
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 392
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211768
+tCpuCycles  : 0
+numDetectObj: 7
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 90 bytes
+  Raw header: 2D 01 00 00 5A 00 00 00 
+[PCEXT] TLV type=301, payload=90 bytes, points=7, format=4h2B (10B)
+Raw1: x=0.599 y=1.945 z=0.263 dop=0.0 snr=9.5 noise=54.0
+Raw1: x=0.832 y=1.801 z=0.000 dop=0.0 snr=14.0 noise=53.0
+Raw1: x=0.954 y=1.679 z=-0.124 dop=0.0 snr=11.2 noise=54.0
+Raw1: x=0.495 y=0.334 z=0.077 dop=0.0 snr=13.8 noise=56.0
+Raw1: x=0.529 y=0.384 z=0.042 dop=0.0 snr=22.8 noise=57.0
+Raw1: x=0.540 y=0.393 z=0.000 dop=0.0 snr=23.2 noise=58.0
+Raw1: x=0.596 y=0.378 z=-0.045 dop=0.0 snr=15.2 noise=60.0
+TLV #2
+  Offset : 138
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 402
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211769
+tCpuCycles  : 0
+numDetectObj: 7
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 90 bytes
+  Raw header: 2D 01 00 00 5A 00 00 00 
+[PCEXT] TLV type=301, payload=90 bytes, points=7, format=4h2B (10B)
+Raw1: x=0.639 y=1.936 z=0.000 dop=0.0 snr=12.5 noise=55.0
+Raw1: x=0.814 y=1.780 z=0.126 dop=0.0 snr=12.8 noise=53.0
+Raw1: x=0.674 y=1.878 z=0.128 dop=0.0 snr=16.8 noise=53.0
+Raw1: x=0.480 y=0.348 z=0.000 dop=0.0 snr=10.8 noise=57.0
+Raw1: x=0.539 y=0.386 z=0.043 dop=0.0 snr=19.5 noise=58.0
+Raw1: x=0.557 y=0.401 z=0.000 dop=0.0 snr=21.0 noise=59.0
+Raw1: x=0.614 y=0.396 z=0.047 dop=0.0 snr=14.2 noise=61.0
+TLV #2
+  Offset : 138
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 402
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211770
+tCpuCycles  : 0
+numDetectObj: 7
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 90 bytes
+  Raw header: 2D 01 00 00 5A 00 00 00 
+[PCEXT] TLV type=301, payload=90 bytes, points=7, format=4h2B (10B)
+Raw1: x=0.597 y=1.888 z=0.256 dop=0.0 snr=14.0 noise=55.0
+Raw1: x=0.534 y=1.974 z=0.000 dop=0.0 snr=11.5 noise=55.0
+Raw1: x=0.670 y=1.813 z=0.250 dop=0.0 snr=11.8 noise=55.0
+Raw1: x=0.524 y=0.297 z=0.000 dop=0.0 snr=13.5 noise=58.0
+Raw1: x=0.546 y=0.354 z=-0.042 dop=0.0 snr=22.0 noise=60.0
+Raw1: x=0.568 y=0.344 z=0.000 dop=0.0 snr=21.5 noise=61.0
+Raw1: x=0.681 y=0.207 z=-0.092 dop=0.0 snr=14.8 noise=61.0
+TLV #2
+  Offset : 138
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 402
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211771
+tCpuCycles  : 0
+numDetectObj: 7
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 90 bytes
+  Raw header: 2D 01 00 00 5A 00 00 00 
+[PCEXT] TLV type=301, payload=90 bytes, points=7, format=4h2B (10B)
+Raw1: x=0.605 y=1.951 z=0.000 dop=0.0 snr=10.0 noise=56.0
+Raw1: x=0.751 y=1.782 z=0.250 dop=0.0 snr=12.0 noise=55.0
+Raw1: x=0.697 y=1.817 z=0.382 dop=0.0 snr=14.8 noise=55.0
+Raw1: x=0.540 y=0.360 z=0.000 dop=0.0 snr=24.8 noise=58.0
+Raw1: x=0.523 y=0.312 z=0.000 dop=0.0 snr=15.5 noise=57.0
+Raw1: x=0.555 y=0.357 z=-0.042 dop=0.0 snr=22.0 noise=61.0
+Raw1: x=0.658 y=0.284 z=0.000 dop=0.0 snr=15.0 noise=62.0
+TLV #2
+  Offset : 138
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 402
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211772
+tCpuCycles  : 0
+numDetectObj: 7
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 90 bytes
+  Raw header: 2D 01 00 00 5A 00 00 00 
+[PCEXT] TLV type=301, payload=90 bytes, points=7, format=4h2B (10B)
+Raw1: x=0.569 y=1.800 z=0.501 dop=0.0 snr=10.0 noise=56.0
+Raw1: x=0.550 y=1.873 z=0.383 dop=0.0 snr=13.5 noise=56.0
+Raw1: x=0.459 y=1.982 z=0.131 dop=0.0 snr=10.0 noise=56.0
+Raw1: x=0.533 y=0.366 z=-0.042 dop=0.0 snr=24.8 noise=58.0
+Raw1: x=0.532 y=0.376 z=0.000 dop=0.0 snr=22.8 noise=60.0
+Raw1: x=0.508 y=0.332 z=-0.039 dop=0.0 snr=16.0 noise=57.0
+Raw1: x=0.646 y=0.291 z=0.000 dop=0.0 snr=13.5 noise=62.0
+TLV #2
+  Offset : 138
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 402
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 416
+platform    : 0x000A6432
+frameNumber : 211773
+tCpuCycles  : 0
+numDetectObj: 5
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 70 bytes
+  Raw header: 2D 01 00 00 46 00 00 00 
+[PCEXT] TLV type=301, payload=70 bytes, points=5, format=4h2B (10B)
+Raw1: x=0.462 y=1.889 z=0.381 dop=0.0 snr=9.8 noise=57.0
+Raw1: x=0.560 y=0.371 z=0.000 dop=0.0 snr=21.5 noise=59.0
+Raw1: x=0.572 y=0.388 z=0.000 dop=0.0 snr=23.0 noise=60.0
+Raw1: x=0.512 y=0.316 z=0.000 dop=0.0 snr=10.8 noise=58.0
+Raw1: x=0.602 y=0.389 z=0.000 dop=0.0 snr=17.2 noise=61.0
+TLV #2
+  Offset : 118
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 382
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211774
+tCpuCycles  : 0
+numDetectObj: 6
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 80 bytes
+  Raw header: 2D 01 00 00 50 00 00 00 
+[PCEXT] TLV type=301, payload=80 bytes, points=6, format=4h2B (10B)
+Raw1: x=0.669 y=1.829 z=0.125 dop=0.0 snr=10.8 noise=56.0
+Raw1: x=0.687 y=1.840 z=0.126 dop=0.0 snr=13.5 noise=56.0
+Raw1: x=0.580 y=0.407 z=0.000 dop=0.0 snr=20.0 noise=60.0
+Raw1: x=0.510 y=0.309 z=-0.077 dop=0.0 snr=13.8 noise=59.0
+Raw1: x=0.569 y=0.345 z=-0.043 dop=0.0 snr=23.5 noise=60.0
+Raw1: x=0.575 y=0.366 z=-0.044 dop=0.0 snr=25.2 noise=60.0
+TLV #2
+  Offset : 128
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 392
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+magicWord   : 0102030405060708
+version     : 0x05050300
+totalPktLen : 448
+platform    : 0x000A6432
+frameNumber : 211775
+tCpuCycles  : 0
+numDetectObj: 7
+numTLVs     : 3
+subFrameNum.: 0xFFFFFFFF
+========================================
+TLV #1
+  Offset : 40
+  Type   : 301
+  Length : 90 bytes
+  Raw header: 2D 01 00 00 5A 00 00 00 
+[PCEXT] TLV type=301, payload=90 bytes, points=7, format=4h2B (10B)
+Raw1: x=0.301 y=1.811 z=-0.765 dop=0.0 snr=12.8 noise=56.0
+Raw1: x=0.190 y=1.873 z=-0.785 dop=0.0 snr=9.5 noise=56.0
+Raw1: x=0.631 y=1.839 z=0.000 dop=0.0 snr=11.2 noise=55.0
+Raw1: x=0.584 y=0.402 z=0.000 dop=0.0 snr=18.5 noise=62.0
+Raw1: x=0.510 y=0.317 z=-0.078 dop=0.0 snr=14.2 noise=59.0
+Raw1: x=0.557 y=0.352 z=-0.042 dop=0.0 snr=23.0 noise=61.0
+Raw1: x=0.570 y=0.362 z=-0.043 dop=0.0 snr=23.5 noise=62.0
+TLV #2
+  Offset : 138
+  Type   : 303
+  Length : 256 bytes
+  Raw header: 2F 01 00 00 00 01 00 00 
+TLV #3
+  Offset : 402
+  Type   : 306
+  Length : 24 bytes
+  Raw header: 32 01 00 00 18 00 00 00 
+ *  O terminal será reutilizado por tarefas, pressione qualquer tecla para fechá-lo. 
+
