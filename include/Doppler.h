@@ -68,5 +68,6 @@ private:
 
 uint16_t Succ(uint16_t i, uint16_t size);
 uint16_t Pred(uint16_t i, uint16_t size);
+void createDefaultConfig(void);
 
 #endif // DOPPLER_H

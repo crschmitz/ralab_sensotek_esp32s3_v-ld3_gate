@@ -326,10 +326,10 @@ void printTLVs(uint8_t *buffer) {
     memcpy(&tlvType, tlvPtr, sizeof(uint32_t));
     memcpy(&tlvLength, tlvPtr + 4, sizeof(uint32_t));
 
-    // Serial.printf("TLV #%u\r\n", i + 1);
-    // Serial.printf("  Offset : %ld\r\n", tlvPtr - buffer);
-    // Serial.printf("  Type   : %u\r\n", tlvType);
-    // Serial.printf("  Length : %u bytes\r\n", tlvLength);
+    Serial.printf("TLV #%u\r\n", i + 1);
+    Serial.printf("  Offset : %ld\r\n", tlvPtr - buffer);
+    Serial.printf("  Type   : %u\r\n", tlvType);
+    Serial.printf("  Length : %u bytes\r\n", tlvLength);
 
     // // Print raw TLV header bytes for debugging
     // Serial.printf("  Raw header: ");

@@ -157,6 +157,10 @@ void Usart::execCommand() {
   if (!this->argv[0].compareTo("h")) {
     this->printHelp();
 
+  } else if (!this->argv[0].compareTo("factory")) {
+    Serial.printf("Factory defaults\r\n");
+    createDefaultConfig();
+
   } else if (!this->argv[0].compareTo("cfg")) {
     config.printConfiguration();
 
