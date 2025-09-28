@@ -12,6 +12,13 @@
 
 #define PLATFORM_TYPE         0x000A6432 // Platform type (IWRL6432)
 
+enum : uint32_t {
+  TLV_POINT_CLOUD            = 301,
+  TLV_TARGET_LIST            = 308,
+  TLV_POINT_SIDE_INFO        = 310,
+  TLV_TRACK_EXTENT_HEIGHT    = 311,
+};
+
 typedef struct OutputMessageHeader {
   uint16_t magicWord[4];      /* Sync word: {0x0102,0x0304,0x0506,0x0708} */
   uint32_t version;           /* MajorNum*2^24+MinorNum*2^16+BugfixNum*2^8+BuildNum */

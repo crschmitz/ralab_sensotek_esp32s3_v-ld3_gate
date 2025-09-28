@@ -55,6 +55,16 @@ typedef struct MmwDemo_output_message_UARTpoint_int16_t {
   int16_t noise;   /* 1 LSB = noiseUnit */
 } MmwDemo_output_message_UARTpoint_int16;
 
+struct TargetF {
+  uint32_t id;
+  float x, y, z;       // meters
+  float vx, vy, vz;    // m/s
+  float ax, ay, az;    // m/s^2
+  float g;             // gating gain
+  float confidence;    // 0..1 or 0..100 (we normalize to 0..1)
+  float ec[16];        // covariance matrix (optional use)
+};
+
 #pragma pack(pop)
 
 /* =========================================================================
@@ -293,6 +303,39 @@ static bool parsePointCloudExtTLV(const uint8_t* tlvBegin,
   return true;
 }
 
+#pragma pack(push,1)
+struct TargetExt308 {
+  uint32_t tid;
+  float posX, posY, posZ;
+  float velX, velY, velZ;
+  float accX, accY, accZ;   // not printed
+  float ec[16];             // not printed
+  float g;                  // not printed
+  float confidence;         // not printed
+};
+#pragma pack(pop)
+static_assert(sizeof(TargetExt308) == 112, "TLV308 entry must be 112 bytes");
+
+static bool parseTargetListTLV_308(const uint8_t* tlvPayload, int lenght)
+{
+  if (!tlvPayload || lenght <= 0) return false;
+  const size_t entrySize = sizeof(TargetExt308);
+  if ((size_t)lenght % entrySize != 0) return false;
+
+  const uint32_t count = (uint32_t)((size_t)lenght / entrySize);
+  const TargetExt308* tgt = reinterpret_cast<const TargetExt308*>(tlvPayload);
+
+  for (uint32_t i = 0; i < count; ++i) {
+    // Print id, position (m), velocity (m/s)
+    Serial.printf("@TGT id=%u pos=(%.2f, %.2f, %.2f) m vel=(%.2f, %.2f, %.2f) m/s\n",
+                  (unsigned)tgt[i].tid,
+                  tgt[i].posX, tgt[i].posY, tgt[i].posZ,
+                  tgt[i].velX, tgt[i].velY, tgt[i].velZ);
+  }
+  return true;
+}
+
+
 void createDefaultConfig() {
   File f = FFat.open("/params.cfg", "w");
   if (!f) {
@@ -326,10 +369,10 @@ void printTLVs(uint8_t *buffer) {
     memcpy(&tlvType, tlvPtr, sizeof(uint32_t));
     memcpy(&tlvLength, tlvPtr + 4, sizeof(uint32_t));
 
-    Serial.printf("TLV #%u\r\n", i + 1);
-    // Serial.printf("  Offset : %ld\r\n", tlvPtr - buffer);
-    Serial.printf("  Type   : %u\r\n", tlvType);
-    Serial.printf("  Length : %u bytes\r\n", tlvLength);
+    // Serial.printf("TLV #%u\r\n", i + 1);
+    // // Serial.printf("  Offset : %ld\r\n", tlvPtr - buffer);
+    // Serial.printf("  Type   : %u\r\n", tlvType);
+    // Serial.printf("  Length : %u bytes\r\n", tlvLength);
 
     // // Print raw TLV header bytes for debugging
     // Serial.printf("  Raw header: ");
@@ -342,8 +385,23 @@ void printTLVs(uint8_t *buffer) {
     uint8_t* payload = tlvPtr + 8;
     size_t payloadLength = tlvLength - 8;
 
-    if (tlvType==301) {
-      parsePointCloudExtTLV(tlvPtr, endPtr, nullptr, 0, 20, outCount);
+    switch(tlvType) {
+      // Point Cloud (Detected Points)
+      case TLV_POINT_CLOUD:
+        parsePointCloudExtTLV(tlvPtr, endPtr, nullptr, 0, 20, outCount);
+        break;
+      // Target List (Tracks)
+      case TLV_TARGET_LIST:
+
+        Serial.printf("TLV #%u\r\n", i + 1);
+        Serial.printf("  Type   : %u\r\n", tlvType);
+        Serial.printf("  Length : %u bytes\r\n", tlvLength);
+
+        parseTargetListTLV_308(payload, tlvLength);
+        break;
+
+      default:
+        break;
     }
 
     // Bounds check for the full TLV (header + payload)
