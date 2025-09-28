@@ -11,9 +11,9 @@ const char defaultParams[] PROGMEM = R"CFG(
 % ***************************************************************
 sensorStop 0
 channelCfg 7 3 0
-chirpComnCfg 15 0 0 128 4 28 0
-chirpTimingCfg 6 32 0 40 60.5
-frameCfg 2 0 200 64 100 0
+chirpComnCfg 10 0 0 128 4 28 0
+chirpTimingCfg 6 32 0 100 57.5
+frameCfg 2 0 500 32 150 0
 antGeometryCfg 1 0 0 1 1 2 1 1 0 2 1 3 2.5 2.5
 guiMonitor 2 3 0 0 0 1 0 0 1 1 1
 sigProcChainCfg 32 2 3 2 8 8 1 0.3
@@ -37,6 +37,6 @@ trackingCfg 1 2 100 3 61.4 191.8 20
 presenceBoundaryBox -3.075 1.425 0 3.0 0.2 3
 microDopplerCfg 1 0 0.5 0 1 1 12.5 87.5 1
 classifierCfg 1 3 4
-% baudRate 1250000
+baudRate 1250000
 sensorStart 0 0 0 0
 )CFG";

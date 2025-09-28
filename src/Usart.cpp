@@ -161,6 +161,15 @@ void Usart::execCommand() {
     Serial.printf("Factory defaults\r\n");
     createDefaultConfig();
 
+  } else if (!this->argv[0].compareTo("version")) {
+    doppler.version();
+
+  } else if (!this->argv[0].compareTo("reset")) {
+    esp_restart();
+
+  } else if (!this->argv[0].compareTo("bypass")) {
+    updateParam(&config.parameters.radar.bypass_mode, 0, 1);
+
   } else if (!this->argv[0].compareTo("cfg")) {
     config.printConfiguration();
 

@@ -327,7 +327,7 @@ void printTLVs(uint8_t *buffer) {
     memcpy(&tlvLength, tlvPtr + 4, sizeof(uint32_t));
 
     Serial.printf("TLV #%u\r\n", i + 1);
-    Serial.printf("  Offset : %ld\r\n", tlvPtr - buffer);
+    // Serial.printf("  Offset : %ld\r\n", tlvPtr - buffer);
     Serial.printf("  Type   : %u\r\n", tlvType);
     Serial.printf("  Length : %u bytes\r\n", tlvLength);
 
@@ -347,8 +347,8 @@ void printTLVs(uint8_t *buffer) {
     }
 
     // Bounds check for the full TLV (header + payload)
-    if (tlvPtr + tlvLength > endPtr || tlvLength < 8) {
-      Serial.printf("  Error: TLV data exceeds packet length or TLV length too small!\r\n");
+    if (tlvPtr + tlvLength > endPtr) {
+      Serial.printf("  Error: TLV data exceeds packet length!\r\n");
       return;
     }
 
@@ -439,6 +439,10 @@ bool Doppler::process() {
   return result;
 }
 
+void Doppler::version() {
+  SerialRadar.println("version");
+}
+
 void Doppler::flush() {
   int c;
   // Reception state machine
@@ -504,9 +508,26 @@ void Doppler::exec() {
     case MMWAVE_SEND_LINE:
       SerialRadar.println(mmwave.currentLine);
       Serial.println(mmwave.currentLine);
-      mmwave.lastSendTime = millis();
-      mmwave.rx.ctr = 0;
-      mmwave.state = MMWAVE_WAIT_ECHO;
+
+      if (mmwave.currentLine.startsWith("baudRate")) {
+        int spaceIndex = mmwave.currentLine.indexOf(' ');
+        if (spaceIndex > 0) {
+          String baudStr = mmwave.currentLine.substring(spaceIndex + 1); // "1250000"
+          long baud = baudStr.toInt();  // convert to integer
+          Serial.printf("Changing baud rate to %ld bps\r\n", baud);
+          // ✅ Ensure last message really went out
+          SerialRadar.flush();
+          // Now it's safe to switch          
+          SerialRadar.end();
+          SerialRadar.begin(baud, SERIAL_8N1, RADAR_RX, RADAR_TX);
+          // Don't wait for echo, just proceed to next line
+          mmwave.state = MMWAVE_READ_LINE;
+        }
+      } else {
+        mmwave.lastSendTime = millis();
+        mmwave.rx.ctr = 0;
+        mmwave.state = MMWAVE_WAIT_ECHO;
+      }
       break;
 
     case MMWAVE_WAIT_ECHO:

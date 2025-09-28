@@ -30,6 +30,7 @@ public:
   void start();
   void startTasks();
   void exec();
+  void version();
   uint32_t getInterval(uint64_t *ticks);
 
   struct {
@@ -68,6 +69,7 @@ private:
 
 uint16_t Succ(uint16_t i, uint16_t size);
 uint16_t Pred(uint16_t i, uint16_t size);
-void createDefaultConfig(void);
+void createDefaultConfig();
+void readAndPrintConfig();
 
 #endif // DOPPLER_H
