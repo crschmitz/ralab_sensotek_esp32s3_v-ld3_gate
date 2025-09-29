@@ -1,3 +1,4 @@
+#include <ArduinoJson.h>
 #include "Doppler.h"
 #include "Config.h"
 #include "Usart.h"
@@ -14,6 +15,8 @@ extern Timer timer;
 unsigned long startingTime;
 
 const uint8_t MAGIC_WORD[8] = {0x02, 0x01, 0x04, 0x03, 0x06, 0x05, 0x08, 0x07};
+
+StaticJsonDocument<2048> doc;
 
 /* =========================================================================
  *  Binary layout structs (packed)
@@ -158,148 +161,55 @@ void printHeader(MmwDemo_output_message_header_t *header) {
   Serial.printf("========================================\r\n");
 }
 
-/* =========================================================================
- *  Parser for TLV type = Point Cloud Ext (commonly 301 or 302 depending on build)
- *  - Expects tlvBegin to point at the start of the TLV header (MmwDemo_output_message_tl)
- *  - Uses SDK struct names for unit and point payload
- *  - Supports both 10-byte (uint8 snr/noise) and 12-byte (int16 snr/noise) variants
- * ========================================================================= */
-static bool parsePointCloudExtTLV(const uint8_t* tlvBegin,
-                                  const uint8_t* frameEnd,
-                                  /* out */ PointF* outPoints,
-                                  int maxOut,
-                                  /* print first N points to Serial to debug */ int printFirstN,
-                                  /* out */ int &outCount) {
-  outCount = 0;
-
-  uint32_t elapsed_ms = doppler.getInterval(&doppler.mmwave.lastTick);
-
-  /* Bounds check for TLV header */
-  if (tlvBegin + sizeof(MmwDemo_output_message_tl) > frameEnd) {
-    Serial.println(F("[PCEXT] Buffer smaller than TLV header."));
+static bool parsePointCloudExtTLV(const uint8_t* payload, int length) {
+  if (!payload || length < (int)sizeof(MmwDemo_output_message_point_uint))
     return false;
-  }
 
-  /* Read TLV header (type/length) */
-  const MmwDemo_output_message_tl* tl = reinterpret_cast<const MmwDemo_output_message_tl*>(tlvBegin);
-  const uint8_t* payload    = tlvBegin + sizeof(MmwDemo_output_message_tl);
-  const uint8_t* payloadEnd = payload + tl->length;
+  const auto* unit = reinterpret_cast<const MmwDemo_output_message_point_uint*>(payload);
+  const float xyzUnit     = unit->xyzUnit;
+  const float dopplerUnit = unit->dopplerUnit;
+  const float snrUnit     = unit->snrUnit;
+  const float noiseUnit   = unit->noiseUnit;
 
-  if (payloadEnd > frameEnd) {
-    Serial.println(F("[PCEXT] Payload exceeds frame bounds."));
-    return false;
-  }
+  payload += sizeof(MmwDemo_output_message_point_uint);
+  length  -= sizeof(MmwDemo_output_message_point_uint);
+  if (length <= 0) return false;
 
-  /* Must have at least the unit block */
-  if (payload + sizeof(MmwDemo_output_message_point_uint) > payloadEnd) {
-    Serial.println(F("[PCEXT] Payload too short for unit block."));
-    return false;
-  }
+  const bool is10B = (length % sizeof(MmwDemo_output_message_UARTpoint)) == 0;
+  const bool is12B = (length % sizeof(MmwDemo_output_message_UARTpoint_int16)) == 0;
+  const int ptSize = is10B ? sizeof(MmwDemo_output_message_UARTpoint)
+                  : is12B ? sizeof(MmwDemo_output_message_UARTpoint_int16)
+                          : 0;
+  if (ptSize == 0) return false;
 
-  /* Read units */
-  const MmwDemo_output_message_point_uint* pUnit =
-    reinterpret_cast<const MmwDemo_output_message_point_uint*>(payload);
+  const int count = length / ptSize;
 
-  const float xyzUnit     = pUnit->xyzUnit;
-  const float dopplerUnit = pUnit->dopplerUnit;
-  const float snrUnit     = pUnit->snrUnit;
-  const float noiseUnit   = pUnit->noiseUnit;
-
-  const uint8_t* p = payload + sizeof(MmwDemo_output_message_point_uint);
-  const int bytesLeft = (int)(payloadEnd - p);
-  if (bytesLeft < 0) {
-    Serial.println(F("[PCEXT] Negative bytesLeft after unit block."));
-    return false;
-  }
-
-  /* Try to resolve which point format we have:
-      - 10-byte points (MmwDemo_output_message_UARTpoint)  => (bytesLeft % 10 == 0)
-      - 12-byte points (MmwDemo_output_message_UARTpoint_int16) => (bytesLeft % 12 == 0)
-      Prefer exact divisibility; if both match (rare), prefer 10-byte to match SDK typedef you provided. */
-  int pointSize = 0;
-  bool useInt16SnrNoise = false;
-
-  const bool fits10 = (bytesLeft % (int)sizeof(MmwDemo_output_message_UARTpoint)) == 0;
-  const bool fits12 = (bytesLeft % (int)sizeof(MmwDemo_output_message_UARTpoint_int16)) == 0;
-
-  if (fits10 && !fits12) {
-    pointSize = sizeof(MmwDemo_output_message_UARTpoint);
-    useInt16SnrNoise = false;
-  } else if (!fits10 && fits12) {
-    pointSize = sizeof(MmwDemo_output_message_UARTpoint_int16);
-    useInt16SnrNoise = true;
-  } else if (fits10 && fits12) {
-    /* Ambiguous but very unlikely; default to classic SDK 10-byte layout */
-    pointSize = sizeof(MmwDemo_output_message_UARTpoint);
-    useInt16SnrNoise = false;
-  } else {
-    // Serial.printf("[PCEXT] Payload size %d does not match 10B or 12B point formats.\r\n", bytesLeft);
-    return false;
-  }
-
-  const int numPoints = bytesLeft / pointSize;
-  outCount = numPoints;
-
-  // Serial.printf("[PCEXT] TLV type=%u, payload=%u bytes, points=%d, format=%s\r\n",
-  //               (unsigned)tl->type, (unsigned)tl->length, numPoints,
-  //               useInt16SnrNoise ? "4h2h (12B)" : "4h2B (10B)");
-
-  String customer_message = "@ " + String(elapsed_ms) + " ";
-
-  /* Decompress points */
-  int stored = 0;
-  for (int i = 0; i < numPoints; ++i) {
-    if (p + pointSize > payloadEnd) {
-      // Serial.println(F("[PCEXT] Truncated point (bounds cut)."));
-      break;
-    }
-
-    PointF pf {};
-    if (!useInt16SnrNoise) {
-      /* 10-byte point (4h2B) */
-      const MmwDemo_output_message_UARTpoint* pt =
-          reinterpret_cast<const MmwDemo_output_message_UARTpoint*>(p);
-      pf.x      = pt->x * xyzUnit;
-      pf.y      = pt->y * xyzUnit;
-      pf.z      = pt->z * xyzUnit;
-      pf.doppler= pt->doppler * dopplerUnit;
-      pf.snr    = ((float)pt->snr)   * snrUnit;
-      pf.noise  = ((float)pt->noise) * noiseUnit;
-
-      customer_message += String((int) (pf.x * 1000)) + " ";
-      customer_message += String((int) (pf.y * 1000)) + " ";
-      customer_message += String((int) (pf.z * 1000)) + " ";
-      customer_message += String((int) (pf.doppler * 1000)) + " ";
-      customer_message += String((int) (pf.snr)) + " ";
-
+  for (int i = 0; i < count; ++i) {
+    float x, y, z, v, snr;
+    if (is10B) {
+      auto* p = reinterpret_cast<const MmwDemo_output_message_UARTpoint*>(payload + ptSize * i);
+      x = p->x * xyzUnit;
+      y = p->y * xyzUnit;
+      z = p->z * xyzUnit;
+      v = p->doppler * dopplerUnit;
+      snr = ((float)p->snr) * snrUnit;
     } else {
-      /* 12-byte point (4h2h) */
-      const MmwDemo_output_message_UARTpoint_int16* pt16 =
-          reinterpret_cast<const MmwDemo_output_message_UARTpoint_int16*>(p);
-      pf.x      = pt16->x * xyzUnit;
-      pf.y      = pt16->y * xyzUnit;
-      pf.z      = pt16->z * xyzUnit;
-      pf.doppler= pt16->doppler * dopplerUnit;
-      pf.snr    = ((float)pt16->snr)   * snrUnit;
-      pf.noise  = ((float)pt16->noise) * noiseUnit;
-
-      customer_message += String((int) (pf.x * 1000)) + " ";
-      customer_message += String((int) (pf.y * 1000)) + " ";
-      customer_message += String((int) (pf.z * 1000)) + " ";
-      customer_message += String((int) (pf.doppler * 1000)) + " ";
-      customer_message += String((int) (pf.snr)) + " ";
+      auto* p = reinterpret_cast<const MmwDemo_output_message_UARTpoint_int16*>(payload + ptSize * i);
+      x = p->x * xyzUnit;
+      y = p->y * xyzUnit;
+      z = p->z * xyzUnit;
+      v = p->doppler * dopplerUnit;
+      snr = ((float)p->snr) * snrUnit;
     }
 
-    if (outPoints && stored < maxOut) {
-      outPoints[stored] = pf;
-      ++stored;
-    }
-
-    p += pointSize;
+    // msg += String((int)(x * 1000)) + " ";
+    // msg += String((int)(y * 1000)) + " ";
+    // msg += String((int)(z * 1000)) + " ";
+    // msg += String((int)(v * 1000)) + " ";
+    // msg += String((int)(snr)) + " ";
   }
 
-  Serial.printf("%s\r\n", customer_message.c_str());
-
+  // Serial.println(msg);
   return true;
 }
 
@@ -325,12 +235,29 @@ static bool parseTargetListTLV_308(const uint8_t* tlvPayload, int lenght)
   const uint32_t count = (uint32_t)((size_t)lenght / entrySize);
   const TargetExt308* tgt = reinterpret_cast<const TargetExt308*>(tlvPayload);
 
+
+  JsonArray targets = doc.createNestedArray("targets");
+
   for (uint32_t i = 0; i < count; ++i) {
+    JsonObject t = targets.createNestedObject();
+    t["id"] = tgt[i].tid;
+    t["x"]  = ((int)(tgt[i].posX * 1000)) / 1000.0;
+    t["y"]  = ((int)(tgt[i].posY * 1000)) / 1000.0;
+    t["z"]  = ((int)(tgt[i].posZ * 1000)) / 1000.0;
+    t["vx"] = ((int)(tgt[i].velX * 1000)) / 1000.0;
+    t["vy"] = ((int)(tgt[i].velY * 1000)) / 1000.0;
+    t["vz"] = ((int)(tgt[i].velZ * 1000)) / 1000.0;
+    t["ax"] = ((int)(tgt[i].accX * 1000)) / 1000.0;
+    t["ay"] = ((int)(tgt[i].accY * 1000)) / 1000.0;
+    t["az"] = ((int)(tgt[i].accZ * 1000)) / 1000.0;
+    t["cf"] = ((int)(tgt[i].confidence * 1000)) / 1000.0;
+    t["gf"] = tgt[i].g;
+    
     // Print id, position (m), velocity (m/s)
-    Serial.printf("@TGT id=%u pos=(%.2f, %.2f, %.2f) m vel=(%.2f, %.2f, %.2f) m/s\n",
-                  (unsigned)tgt[i].tid,
-                  tgt[i].posX, tgt[i].posY, tgt[i].posZ,
-                  tgt[i].velX, tgt[i].velY, tgt[i].velZ);
+    // Serial.printf("@TGT id=%u pos=(%.2f, %.2f, %.2f) m vel=(%.2f, %.2f, %.2f) m/s\n",
+    //               (unsigned)tgt[i].tid,
+    //               tgt[i].posX, tgt[i].posY, tgt[i].posZ,
+    //               tgt[i].velX, tgt[i].velY, tgt[i].velZ);
   }
   return true;
 }
@@ -388,15 +315,10 @@ void printTLVs(uint8_t *buffer) {
     switch(tlvType) {
       // Point Cloud (Detected Points)
       case TLV_POINT_CLOUD:
-        parsePointCloudExtTLV(tlvPtr, endPtr, nullptr, 0, 20, outCount);
+        parsePointCloudExtTLV(payload, tlvLength);
         break;
       // Target List (Tracks)
       case TLV_TARGET_LIST:
-
-        Serial.printf("TLV #%u\r\n", i + 1);
-        Serial.printf("  Type   : %u\r\n", tlvType);
-        Serial.printf("  Length : %u bytes\r\n", tlvLength);
-
         parseTargetListTLV_308(payload, tlvLength);
         break;
 
@@ -636,11 +558,23 @@ void Doppler::exec() {
           // Else header is complete...
           if (this->mmwave.rx.ctr == sizeof(MmwDemo_output_message_header_t)) {
             // If header is not valid, reset counter
-            if (!isHeaderValid(&this->mmwave.rx.message.header)) {
+            if (isHeaderValid(&this->mmwave.rx.message.header)) {
+              doc.clear();
+
+              const uint32_t elapsed = doppler.getInterval(&doppler.mmwave.lastTick);
+              JsonObject frame = doc.createNestedObject("frame");
+              frame["dt"] = elapsed;
+              frame["n"] = this->mmwave.rx.message.header.frameNumber;
+
+              JsonObject zones = doc.createNestedObject("zones");
+              zones["z1"] = 0;  // Zone 1 status
+              zones["z2"] = 0;  // Zone 2 status
+              zones["z3"] = 0;  // Zone 3 status
+
+              // printHeader(&this->mmwave.rx.message.header);
+            } else {
               // Serial.println("Invalid header received!");
               this->mmwave.rx.ctr = 0; // Reset counter
-            } else {
-              // printHeader(&this->mmwave.rx.message.header);
             }
           }
         // Else receive the TLV data
@@ -648,9 +582,10 @@ void Doppler::exec() {
           this->mmwave.rx.message.buffer[this->mmwave.rx.ctr++] = c;
           // If message is complete...
           if (this->mmwave.rx.ctr == this->mmwave.rx.message.header.totalPacketLen) {
-            
             printTLVs(this->mmwave.rx.message.buffer);
-
+            // Print JSON message
+            serializeJson(doc, Serial);
+            Serial.println();
             this->mmwave.rx.ctr = 0;
           }
         }

@@ -13,7 +13,7 @@ sensorStop 0
 channelCfg 7 3 0
 chirpComnCfg 10 0 0 128 4 28 0
 chirpTimingCfg 6 32 0 100 57.5
-frameCfg 2 0 500 32 150 0
+frameCfg 2 0 250 32 100 0
 antGeometryCfg 1 0 0 1 1 2 1 1 0 2 1 3 2.5 2.5
 guiMonitor 2 3 0 0 0 1 0 0 1 1 1
 sigProcChainCfg 32 2 3 2 8 8 1 0.3
