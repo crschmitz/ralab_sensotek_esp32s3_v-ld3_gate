@@ -8,7 +8,6 @@
 💡 **Observations:**  
 
 - mmWave configuration (.cfg) inside **mmWaveConfig.h** file;
-- Sensor baudrate is not changed by ESP32S3 (baudrate command inside .cfg is ignored);
 - If using V-LD3 eval kit, then R220 needs to be removed. This is to avoid bus conflict between FTDI TX line and ESP32 TX line;
 - Use the same TX and RX pins on the RMV board that were previously used for the K-LD7.
 - Gate application
