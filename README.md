@@ -119,8 +119,9 @@ Data extracted from TLV 308 (Target List), part of the radar’s tracking engine
 | `cf`  | float | Classification confidence (0.0 to 1.0)                   |
 | `gf`  | int   | Group or classification ID (e.g., person, vehicle, etc.) |
 
-- Fields are truncated to 3 decimal places.
-- Units are metric.
+- Fields are truncated to 3 decimal places;
+- All coordinates are expressed relative to the R0 reference point, where (0, 0, 0) denotes the R0 origin;
+- Units are metric;
 - If no targets are detected in a frame, then "targets" is not included in the json message.
 
 
