@@ -1,3 +1,4 @@
+#include <ArduinoJson.h>
 #include "Usart.h"
 #include "Config.h"
 #include "Doppler.h"
@@ -11,6 +12,52 @@ extern Doppler doppler;
 
 Usart::Usart() {
 }
+
+String Usart::processCommand(const String &cmd) {
+  String result = "error";
+  if (cmd == "readSensor") {
+    this->cmd = cmd;
+    result = "";
+  } 
+  else if (cmd == "getStatus") {
+    result = "ok";
+  } else {
+    result = "unknown";
+  }
+  return result;
+}
+
+void Usart::handleIncomingJson(const String &incoming) {
+  // 1) Validate JSON
+  StaticJsonDocument<2048> doc;
+  DeserializationError err = deserializeJson(doc, incoming);
+  if (err) {
+    return;
+  }
+
+  // 2) Check "id"
+  if (!doc.containsKey("id")) {
+    return;
+  }
+
+  int id = doc["id"].as<int>();
+  if (id == 1) {
+    if (doc.containsKey("cmd")) {
+      String cmd = doc["cmd"].as<const char*>();
+      String ret = this->processCommand(cmd);
+      if (ret.length() > 0) {
+        // Build the reply: insert ,"ack":"ok" before the final }
+        int bracePos = incoming.lastIndexOf('}');
+        if (bracePos > 0) {
+          String reply = incoming.substring(0, bracePos);
+          reply += ",\"ack\":\"" + ret + "\"}\r\n";
+          Serial.print(reply);
+        }
+      }
+    }
+  }
+}
+
 
 // Split a command line into separate arguments.
 void Usart::splitCommandLine() {
@@ -36,13 +83,16 @@ void Usart::splitCommandLine() {
 // Handles byte reception via serial and returns true if a command is received
 bool Usart::getCommand() {
   bool result = false;
-  if (Serial.available()) {
+  while (Serial.available()) {
     char c = char(Serial.read());
     if (c=='\r') {
-      this->msg.toLowerCase();
-      this->splitCommandLine();
+
+      this->handleIncomingJson(msg);
+
+      // this->msg.toLowerCase();
+      // this->splitCommandLine();
       this->msg = "";
-      result = true;
+      // result = true;
     } else if (isPrintable(c)) {
       this->msg += c;
     }

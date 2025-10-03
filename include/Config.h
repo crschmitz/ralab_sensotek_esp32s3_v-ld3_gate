@@ -18,8 +18,9 @@ typedef enum {
 typedef struct {
   uint32_t cod_validation;  
 	struct {
+    uint8_t id;
     uint8_t bypass_mode;
-    uint8_t reserved[63];
+    uint8_t reserved[62];
     uint32_t reserved32b[14];
 	} radar;
 

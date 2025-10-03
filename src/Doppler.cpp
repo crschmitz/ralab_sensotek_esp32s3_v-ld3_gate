@@ -262,7 +262,6 @@ static bool parseTargetListTLV_308(const uint8_t* tlvPayload, int lenght)
   return true;
 }
 
-
 void createDefaultConfig() {
   File f = FFat.open("/params.cfg", "w");
   if (!f) {
@@ -274,8 +273,9 @@ void createDefaultConfig() {
   Serial.println("Default /params.cfg written to FFat");
 }
 
-void printTLVs(uint8_t *buffer) {
-  int outCount;
+bool parseTLVs(uint8_t *buffer) {
+  bool result;
+  int i, outCount;
 
   // Interpret header from buffer
   MmwDemo_output_message_header_t *header = reinterpret_cast<MmwDemo_output_message_header_t*>(buffer);
@@ -284,11 +284,11 @@ void printTLVs(uint8_t *buffer) {
   uint8_t *tlvPtr = buffer + sizeof(MmwDemo_output_message_header_t);
   uint8_t *endPtr = buffer + header->totalPacketLen;
 
-  for (uint32_t i = 0; i < header->numTLVs; ++i) {
+  for (i = 0; i < header->numTLVs; ++i) {
     // Ensure at least 8 bytes are available for TLV header
     if (tlvPtr + 8 > endPtr) {
-      Serial.printf("Error: TLV #%u header out of bounds (offset %ld)\r\n", i + 1, tlvPtr - buffer);
-      return;
+      // Serial.printf("Error: TLV #%u header out of bounds (offset %ld)\r\n", i + 1, tlvPtr - buffer);
+      break;
     }
 
     // Read TLV header fields safely
@@ -321,15 +321,15 @@ void printTLVs(uint8_t *buffer) {
       case TLV_TARGET_LIST:
         parseTargetListTLV_308(payload, tlvLength);
         break;
-
+      // Other TLV types can be handled here...
       default:
         break;
     }
 
     // Bounds check for the full TLV (header + payload)
     if (tlvPtr + tlvLength > endPtr) {
-      Serial.printf("  Error: TLV data exceeds packet length!\r\n");
-      return;
+      // Serial.printf("  Error: TLV data exceeds packet length!\r\n");
+      break;
     }
 
     // Serial.printf("  Payload (first 32 bytes or less): ");
@@ -344,6 +344,9 @@ void printTLVs(uint8_t *buffer) {
     // Advance to next TLV
     tlvPtr += tlvLength + 8;
   }
+  // Check if all TLVs were processed
+  result = i >= header->numTLVs;
+  return result;
 }
 
 void readAndPrintConfig() {
@@ -582,10 +585,17 @@ void Doppler::exec() {
           this->mmwave.rx.message.buffer[this->mmwave.rx.ctr++] = c;
           // If message is complete...
           if (this->mmwave.rx.ctr == this->mmwave.rx.message.header.totalPacketLen) {
-            printTLVs(this->mmwave.rx.message.buffer);
-            // Print JSON message
-            serializeJson(doc, Serial);
-            Serial.println();
+            // Parse TLVs
+            if (parseTLVs(this->mmwave.rx.message.buffer)) {
+              if (usart.getCmd() == "readSensor") {
+                // Reply sensor frame as JSON
+                serializeJson(doc, Serial);
+                Serial.println();
+                usart.setCmd("");
+              }
+            } else {
+              // Serial.println("Error parsing TLVs!");
+            }
             this->mmwave.rx.ctr = 0;
           }
         }
