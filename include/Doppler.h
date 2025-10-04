@@ -39,6 +39,11 @@ public:
   void exec();
   void version();
   uint32_t getInterval(uint64_t *ticks);
+
+  bool parseTLVs(uint8_t *buffer);
+  bool parsePointCloudExtTLV(const uint8_t* payload, int length);
+  bool parseTargetListTLV_308(const uint8_t* tlvPayload, int length);
+
   void setJsonLine(const String &line) { this->jsonLine = line; }
   String getJsonLine() { return this->jsonLine; }
 
@@ -72,6 +77,9 @@ private:
   bool process();
   void flush();
   String jsonLine;
+  String jsonFrame;
+  String jsonTargets;
+  String jsonPoints;
 
   // Task handle
   TaskHandle_t sendTaskHandle;
