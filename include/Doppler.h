@@ -39,6 +39,8 @@ public:
   void exec();
   void version();
   uint32_t getInterval(uint64_t *ticks);
+  void setJsonLine(const String &line) { this->jsonLine = line; }
+  String getJsonLine() { return this->jsonLine; }
 
   struct {
     uint8_t state;
@@ -69,6 +71,7 @@ public:
 private:
   bool process();
   void flush();
+  String jsonLine;
 
   // Task handle
   TaskHandle_t sendTaskHandle;

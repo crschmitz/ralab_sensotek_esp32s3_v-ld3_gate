@@ -377,6 +377,7 @@ void sendTaskFunction(void *parameter) {
 
 // Constructor
 Doppler::Doppler() {
+  this->jsonLine = "";
 }
 
 void Doppler::start() {
@@ -587,12 +588,20 @@ void Doppler::exec() {
           if (this->mmwave.rx.ctr == this->mmwave.rx.message.header.totalPacketLen) {
             // Parse TLVs
             if (parseTLVs(this->mmwave.rx.message.buffer)) {
-              if (usart.getCmd() == "readSensor") {
-                // Reply sensor frame as JSON
-                serializeJson(doc, Serial);
-                Serial.println();
-                usart.setCmd("");
+              if (this->jsonLine.length() > 0) {
+                // Merge jsonLine into doc
+                DeserializationError error = deserializeJson(doc, this->jsonLine);
+                if (error) {
+                  Serial.println("Error parsing input JSON line!");
+                }
+                this->jsonLine = "";
               }
+              // if (usart.getCmd() == "readSensor") {
+              //   // Reply sensor frame as JSON
+              //   serializeJson(doc, Serial);
+              //   Serial.println();
+              //   usart.setCmd("");
+              // }
             } else {
               // Serial.println("Error parsing TLVs!");
             }

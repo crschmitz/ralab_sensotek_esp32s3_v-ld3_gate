@@ -13,20 +13,6 @@ extern Doppler doppler;
 Usart::Usart() {
 }
 
-String Usart::processCommand(const String &cmd) {
-  String result = "error";
-  if (cmd == "readSensor") {
-    this->cmd = cmd;
-    result = "";
-  } 
-  else if (cmd == "getStatus") {
-    result = "ok";
-  } else {
-    result = "unknown";
-  }
-  return result;
-}
-
 void Usart::handleIncomingJson(const String &incoming) {
   // 1) Validate JSON
   StaticJsonDocument<2048> doc;
@@ -44,13 +30,16 @@ void Usart::handleIncomingJson(const String &incoming) {
   if (id == 1) {
     if (doc.containsKey("cmd")) {
       String cmd = doc["cmd"].as<const char*>();
-      String ret = this->processCommand(cmd);
-      if (ret.length() > 0) {
+      // If command is "get", save the JSON line to Doppler
+      if (cmd == "get") {
+        doppler.setJsonLine(incoming);
+      // If command is "cfg", reply with {"ack":"ok"}
+      } else if (cmd == "cfg") {
         // Build the reply: insert ,"ack":"ok" before the final }
         int bracePos = incoming.lastIndexOf('}');
         if (bracePos > 0) {
           String reply = incoming.substring(0, bracePos);
-          reply += ",\"ack\":\"" + ret + "\"}\r\n";
+          reply += ",\"ack\":\"ok\"}\r\n";
           Serial.print(reply);
         }
       }
