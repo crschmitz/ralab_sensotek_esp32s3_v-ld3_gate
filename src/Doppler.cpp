@@ -6,6 +6,10 @@
 #include "esp_task_wdt.h"
 #include "mmWaveConfig.h"
 
+extern "C" {
+  #include "esp32/rom/crc.h"
+}
+
 extern Config config;
 extern Usart usart;
 extern Doppler doppler;
@@ -309,15 +313,7 @@ bool Doppler::parsePointCloudExtTLV(const uint8_t* payload, int length) {
       v = p->doppler * dopplerUnit;
       snr = ((float)p->snr) * snrUnit;
     }
-
-    // msg += String((int)(x * 1000)) + " ";
-    // msg += String((int)(y * 1000)) + " ";
-    // msg += String((int)(z * 1000)) + " ";
-    // msg += String((int)(v * 1000)) + " ";
-    // msg += String((int)(snr)) + " ";
   }
-
-  // Serial.println(msg);
   return true;
 }
 
@@ -620,8 +616,11 @@ void Doppler::exec() {
                 }
                 if (this->jsonPoints.length() > 0) {
                   payload += ",\"raw\":[";
-                  payload += this->jsonPoints + "]}";
+                  payload += this->jsonPoints + "]";
                 }
+                payload += "}";
+                uint32_t crc = crc32_le(0, (const uint8_t*)payload.c_str(), payload.length());
+                payload += ",\"crc\":" + String(crc);
                 Serial.print(payload);
                 Serial.println("}");
                 this->jsonLine = "";

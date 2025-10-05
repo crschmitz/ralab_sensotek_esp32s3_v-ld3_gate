@@ -4,6 +4,10 @@
 #include "Doppler.h"
 #include "defines.h"
 
+extern "C" {
+  #include "esp32/rom/crc.h"
+}
+
 String FirmwareVersion = "102";
 String FirmwareDate    = "14.09.2025";
 
@@ -42,12 +46,21 @@ void Usart::handleIncomingJson(const String &incoming) {
         doppler.setJsonLine(incoming);
       // If command is "cfg", update configuration parameters
       } else if (cmd == "cfg") {
-        if (doc.containsKey("file") && doc.containsKey("crc")) {
-          String fileContent = doc["file"].as<const char*>();
-          int crc = doc["crc"].as<int>();
-          Serial.println("Received cfg:");
-          Serial.println(fileContent);
-          Serial.printf("CRC: %d\r\n", crc);
+        // Check for required keys
+        if (doc.containsKey("file")) {
+          String cfg = doc["file"].as<const char*>();
+          // If crc is present, we could validate it here
+          if (doc.containsKey("crc")) {
+            int crc = doc["crc"].as<int>();
+            uint32_t calc_crc = crc32_le(0, (const uint8_t*)cfg.c_str(), cfg.length());
+            if (crc != (int)calc_crc) {
+              Serial.println("CRC mismatch!");
+            } else {
+              Serial.println("CRC valid");
+            }
+
+
+          }
 
         } else {
           Serial.println("cfg command missing 'file' or 'crc'");
