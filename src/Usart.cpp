@@ -53,15 +53,19 @@ void Usart::handleIncomingJson(const String &incoming) {
           if (doc.containsKey("crc")) {
             int crc = doc["crc"].as<int>();
             uint32_t calc_crc = crc32_le(0, (const uint8_t*)cfg.c_str(), cfg.length());
+            String result = "";
             if (crc != (int)calc_crc) {
-              Serial.println("CRC mismatch!");
+              result = "CRC Error";
             } else {
-              Serial.println("CRC valid");
+              doppler.setCfgString(cfg);
+              result = "Done";
             }
-
-
+            doc.remove("file");
+            doc.remove("crc");
+            doc["res"] = result;
+            serializeJson(doc, Serial);            
+            Serial.println();
           }
-
         } else {
           Serial.println("cfg command missing 'file' or 'crc'");
         }

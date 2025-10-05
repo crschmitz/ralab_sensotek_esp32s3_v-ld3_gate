@@ -47,6 +47,8 @@ public:
   void setJsonLine(const String &line) { this->jsonLine = line; }
   String getJsonLine() { return this->jsonLine; }
 
+  void setCfgString(const String &cfg) { this->mmwave.cfgString = cfg; }
+
   struct {
     uint8_t state;
     uint8_t timeout;
@@ -67,15 +69,17 @@ public:
     // Optional: other runtime metadata
     fs::File cfgFile;
     String currentLine;
+    String cfgString;
     uint64_t lastTick = 0;
     uint8_t retries = 0;
     uint32_t lastSendTime = 0;
-
   } mmwave;
 
 private:
   bool process();
   void flush();
+  String getNextLine();
+
   String jsonLine;
   String jsonFrame;
   String jsonTargets;

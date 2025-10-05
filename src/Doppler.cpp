@@ -215,6 +215,7 @@ void sendTaskFunction(void *parameter) {
 // Constructor
 Doppler::Doppler() {
   this->jsonLine = "";
+  this->mmwave.cfgString = "";
 }
 
 void Doppler::start() {
@@ -453,10 +454,28 @@ bool Doppler::parseTLVs(uint8_t *buffer) {
   result = i >= header->numTLVs;
   return result;
 }
+
+String Doppler::getNextLine() {
+  // Find next newline
+  int nl = this->mmwave.cfgString.indexOf('\n');
+
+  String line;
+  if (nl == -1) {
+    // Last (or only) line
+    line = this->mmwave.cfgString;
+    this->mmwave.cfgString = "";  // consume everything
+  } else {
+    // Extract substring up to newline
+    line = this->mmwave.cfgString.substring(0, nl);
+    this->mmwave.cfgString.remove(0, nl + 1);  // remove line + '\n' from the original string
+  }
+  line.trim(); // remove any trailing \r or spaces
+  return line;
+}
+
 void Doppler::exec() {
   enum {
     MMWAVE_IDLE = 0,
-    MMWAVE_OPEN_FILE,
     MMWAVE_READ_LINE,
     MMWAVE_SEND_LINE,
     MMWAVE_WAIT_ECHO,
@@ -465,55 +484,32 @@ void Doppler::exec() {
   };
   bool echoMatched = false;
 
-  switch (mmwave.state) {
+  switch (this->mmwave.state) {
     case MMWAVE_IDLE:
       startingTime = millis();
-      mmwave.state = MMWAVE_OPEN_FILE;
-      break;
-
-    case MMWAVE_OPEN_FILE:
-      mmwave.cfgFile = FFat.open("/params.cfg", "r");
-      if (!mmwave.cfgFile) {
-        // Serial.println("Failed to open /params.cfg");
-        mmwave.state = MMWAVE_DONE;
-        break;
+      if (this->mmwave.cfgString.length() > 0) {
+        this->mmwave.state = MMWAVE_READ_LINE;
       }
-      mmwave.state = MMWAVE_READ_LINE;
       break;
 
     case MMWAVE_READ_LINE:
-      mmwave.currentLine = "";
-      while (mmwave.cfgFile.available()) {
-        char c = mmwave.cfgFile.read();
-        if (c == '\n') break;
-        mmwave.currentLine += c;
-      }
-      mmwave.currentLine.trim();
-
-      if (!mmwave.cfgFile.available() && mmwave.currentLine.isEmpty()) {
-        mmwave.cfgFile.close();
-        mmwave.state = MMWAVE_DONE;
-        unsigned long elapsed = millis() - startingTime;
-        // Serial.printf("Sensor configuration completed in %lu ms\r\n", elapsed);
-        break;
-      }
-
-      if (mmwave.currentLine.startsWith("%") || mmwave.currentLine.isEmpty()) {
-        mmwave.state = MMWAVE_READ_LINE;
-      } else {
-        mmwave.retries = 0;
-        mmwave.state = MMWAVE_SEND_LINE;
+      this->mmwave.currentLine = this->getNextLine();
+      // If it's a non-comment nor empty line, send it
+      if (!this->mmwave.currentLine.startsWith("%") && !this->mmwave.currentLine.isEmpty()) {
+        this->mmwave.retries = 0;
+        this->mmwave.state = MMWAVE_SEND_LINE;
       }
       break;
 
     case MMWAVE_SEND_LINE:
-      SerialRadar.println(mmwave.currentLine);
-      // Serial.println(mmwave.currentLine);
+      SerialRadar.println(this->mmwave.currentLine);
 
-      if (mmwave.currentLine.startsWith("baudRate")) {
-        int spaceIndex = mmwave.currentLine.indexOf(' ');
+      Serial.println(this->mmwave.currentLine);
+
+      if (this->mmwave.currentLine.startsWith("baudRate")) {
+        int spaceIndex = this->mmwave.currentLine.indexOf(' ');
         if (spaceIndex > 0) {
-          String baudStr = mmwave.currentLine.substring(spaceIndex + 1); // "1250000"
+          String baudStr = this->mmwave.currentLine.substring(spaceIndex + 1); // "1250000"
           long baud = baudStr.toInt();  // convert to integer
           // Serial.printf("Changing baud rate to %ld bps\r\n", baud);
           // ✅ Ensure last message really went out
@@ -522,41 +518,38 @@ void Doppler::exec() {
           SerialRadar.end();
           SerialRadar.begin(baud, SERIAL_8N1, RADAR_RX, RADAR_TX);
           // Don't wait for echo, just proceed to next line
-          mmwave.state = MMWAVE_READ_LINE;
+          this->mmwave.state = MMWAVE_READ_LINE;
         }
       } else {
-        mmwave.lastSendTime = millis();
-        mmwave.rx.ctr = 0;
-        mmwave.state = MMWAVE_WAIT_ECHO;
+        this->mmwave.lastSendTime = millis();
+        this->mmwave.rx.ctr = 0;
+        this->mmwave.state = MMWAVE_WAIT_ECHO;
       }
       break;
 
     case MMWAVE_WAIT_ECHO:
       while (SerialRadar.available()) {
         char c = SerialRadar.read();
-        if (mmwave.rx.ctr < RX_SIZE - 1) {
-          mmwave.rx.message.buffer[mmwave.rx.ctr++] = c;
+        if (this->mmwave.rx.ctr < RX_SIZE - 1) {
+          this->mmwave.rx.message.buffer[this->mmwave.rx.ctr++] = c;
         }
         if (c == '\n') {
-          mmwave.rx.message.buffer[mmwave.rx.ctr] = '\0';
-          mmwave.rx.ctr = 0;
-          String received((char*)mmwave.rx.message.buffer);
+          this->mmwave.rx.message.buffer[this->mmwave.rx.ctr] = '\0';
+          this->mmwave.rx.ctr = 0;
+          String received((char*)this->mmwave.rx.message.buffer);
           received.trim();
 
-          // Serial.println(received);
+          Serial.println(received);
 
           if (received.equalsIgnoreCase("Done")) {
-            mmwave.state = MMWAVE_READ_LINE;
+            this->mmwave.state = MMWAVE_READ_LINE;
           }
         }
       }
       // After a timeout either retry or finish
-      if (millis() - mmwave.lastSendTime >= 1200) {
-        // if (++mmwave.retries < 5) {
-          mmwave.state = MMWAVE_SEND_LINE;
-        // } else {
-        //   mmwave.state = MMWAVE_DONE;
-        // }
+      if (millis() - this->mmwave.lastSendTime >= 1200) {
+        this->mmwave.retries++;
+        this->mmwave.state = MMWAVE_SEND_LINE;
       }
       break;
 
@@ -602,9 +595,9 @@ void Doppler::exec() {
             // Parse TLVs
             if (parseTLVs(this->mmwave.rx.message.buffer)) {
               if (this->jsonLine.length() > 0) {
-                int pos = jsonLine.lastIndexOf('}');
+                int pos = this->jsonLine.lastIndexOf('}');
                 if (pos >= 0) {
-                  jsonLine.remove(pos);
+                  this->jsonLine.remove(pos);
                 }
                 this->jsonLine += ",\"res\":";
                 Serial.print(this->jsonLine);
