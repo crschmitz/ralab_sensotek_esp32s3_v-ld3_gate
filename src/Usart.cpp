@@ -11,6 +11,9 @@ extern Config config;
 extern Doppler doppler;
 
 Usart::Usart() {
+  this->bracesCount = 0;
+  this->msg = "";
+  this->argc = 0;
 }
 
 void Usart::handleIncomingJson(const String &incoming) {
@@ -18,35 +21,41 @@ void Usart::handleIncomingJson(const String &incoming) {
   StaticJsonDocument<2048> doc;
   DeserializationError err = deserializeJson(doc, incoming);
   if (err) {
+    Serial.println("Error deserializing JSON");
     return;
   }
 
   // 2) Check "id"
   if (!doc.containsKey("id")) {
+    Serial.println("No id");
     return;
   }
 
   int id = doc["id"].as<int>();
+  // Validate id
   if (id == 1) {
+    // If "cmd" is present, handle commands
     if (doc.containsKey("cmd")) {
       String cmd = doc["cmd"].as<const char*>();
       // If command is "get", save the JSON line to Doppler
       if (cmd == "get") {
         doppler.setJsonLine(incoming);
-      // If command is "cfg", reply with {"ack":"ok"}
+      // If command is "cfg", update configuration parameters
       } else if (cmd == "cfg") {
-        // Build the reply: insert ,"ack":"ok" before the final }
-        int bracePos = incoming.lastIndexOf('}');
-        if (bracePos > 0) {
-          String reply = incoming.substring(0, bracePos);
-          reply += ",\"ack\":\"ok\"}\r\n";
-          Serial.print(reply);
+        if (doc.containsKey("file") && doc.containsKey("crc")) {
+          String fileContent = doc["file"].as<const char*>();
+          int crc = doc["crc"].as<int>();
+          Serial.println("Received cfg:");
+          Serial.println(fileContent);
+          Serial.printf("CRC: %d\r\n", crc);
+
+        } else {
+          Serial.println("cfg command missing 'file' or 'crc'");
         }
       }
     }
   }
 }
-
 
 // Split a command line into separate arguments.
 void Usart::splitCommandLine() {
@@ -74,16 +83,28 @@ bool Usart::getCommand() {
   bool result = false;
   while (Serial.available()) {
     char c = char(Serial.read());
-    if (c=='\r') {
-
-      this->handleIncomingJson(msg);
-
-      // this->msg.toLowerCase();
-      // this->splitCommandLine();
-      this->msg = "";
-      // result = true;
-    } else if (isPrintable(c)) {
-      this->msg += c;
+    // If valid ASCII character, add to command buffer
+    if (isAscii(c)) {
+      if (this->bracesCount == 0) {
+        if (c == '{') {
+          this->msg = "{";    // start of new JSON command
+          this->bracesCount = 1;
+        }
+      } else {
+        this->msg += c;
+        if (c == '{') {
+          this->bracesCount++;
+        } else if (c == '}') {
+          this->bracesCount--;
+          if (this->bracesCount == 0) {
+            this->handleIncomingJson(this->msg);
+            // Serial.println(this->msg); // echo back the complete JSON command
+            this->msg = "";
+          }
+        }
+      }
+    } else {
+      this->bracesCount = 0;
     }
   }
   return result;

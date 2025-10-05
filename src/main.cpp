@@ -126,6 +126,9 @@ void initializeNVS() {
 void setup() {
   // Start serial communication for debugging
   Serial.begin(921600);
+  Serial.setRxBufferSize(8192);
+  Serial.setDebugOutput(false);
+
   unsigned long startWait = millis();
   while (!Serial && millis() - startWait < 1000) {
     delay(10); // espera no máximo 2 segundos

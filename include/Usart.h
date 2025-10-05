@@ -24,6 +24,7 @@ private:
 
   String msg;
   int argc;
+  int bracesCount;
   String argv[MAXARGC];
 };
 

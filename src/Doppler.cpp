@@ -478,7 +478,7 @@ void Doppler::exec() {
     case MMWAVE_OPEN_FILE:
       mmwave.cfgFile = FFat.open("/params.cfg", "r");
       if (!mmwave.cfgFile) {
-        Serial.println("Failed to open /params.cfg");
+        // Serial.println("Failed to open /params.cfg");
         mmwave.state = MMWAVE_DONE;
         break;
       }
@@ -498,7 +498,7 @@ void Doppler::exec() {
         mmwave.cfgFile.close();
         mmwave.state = MMWAVE_DONE;
         unsigned long elapsed = millis() - startingTime;
-        Serial.printf("Sensor configuration completed in %lu ms\r\n", elapsed);
+        // Serial.printf("Sensor configuration completed in %lu ms\r\n", elapsed);
         break;
       }
 
@@ -512,14 +512,14 @@ void Doppler::exec() {
 
     case MMWAVE_SEND_LINE:
       SerialRadar.println(mmwave.currentLine);
-      Serial.println(mmwave.currentLine);
+      // Serial.println(mmwave.currentLine);
 
       if (mmwave.currentLine.startsWith("baudRate")) {
         int spaceIndex = mmwave.currentLine.indexOf(' ');
         if (spaceIndex > 0) {
           String baudStr = mmwave.currentLine.substring(spaceIndex + 1); // "1250000"
           long baud = baudStr.toInt();  // convert to integer
-          Serial.printf("Changing baud rate to %ld bps\r\n", baud);
+          // Serial.printf("Changing baud rate to %ld bps\r\n", baud);
           // ✅ Ensure last message really went out
           SerialRadar.flush();
           // Now it's safe to switch          
@@ -547,7 +547,7 @@ void Doppler::exec() {
           String received((char*)mmwave.rx.message.buffer);
           received.trim();
 
-          Serial.println(received);
+          // Serial.println(received);
 
           if (received.equalsIgnoreCase("Done")) {
             mmwave.state = MMWAVE_READ_LINE;
