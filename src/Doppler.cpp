@@ -13,6 +13,8 @@ extern Config config;
 extern Usart usart;
 extern Doppler doppler;
 extern Timer timer;
+extern String FirmwareVersion;
+extern String FirmwareDate;
 
 const uint8_t MAGIC_WORD[8] = {0x02, 0x01, 0x04, 0x03, 0x06, 0x05, 0x08, 0x07};
 
@@ -472,7 +474,8 @@ void Doppler::handleGetCommand(String incoming) {
 }
 
 void Doppler::handleStatusCommand(String incoming) {
-  this->replyRes(incoming, (int) this->mmwave.state);
+  String resp = "V" + FirmwareVersion + ", (" + FirmwareDate + "), State:" + String((int) this->mmwave.state);
+  this->replyRes(incoming, resp);
 }
 
 void Doppler::exec() {
