@@ -184,7 +184,7 @@ Response meaning:
   - `State:0` = Idle state, sensor not configured, waiting for "cfg" message
   - `State:1` = Reading next configuration line
   - `State:2` = Sending configuration line to mmWave sensor
-  - `State:3` = Waiting for echo from wwWave Sensor
+  - `State:3` = Waiting for echo from mmWave Sensor
   - `State:4` = Sensor configured and running
   - `State:5` = Reading TLV data from sensor
 
