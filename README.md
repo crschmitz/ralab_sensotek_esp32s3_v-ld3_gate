@@ -59,6 +59,7 @@ So the host computer should send the configuration message.
 
 The configuration is a serialization of the .cfg file, with a '\n' to separate each line. The last field should be the "crc" field (CRC32). The CRC is calculated only over the file contents (contents of "file" field).
 The ESP32 validates the CRC using **CRC-32/MPEG-2** as specified in the CRC section below.
+
 Message from host :arrow_right: ESP32
 
 ```json
@@ -87,7 +88,6 @@ If the configuration is succeeded, the ESP32 will receive the frame messages fro
 Each frame corresponds to a parsed radar data packet and includes:
 
 - Timestamp and frame number
-- Detection zone states
 - Tracked targets (with position, velocity, acceleration, classification)
 - *(Optional)* Detected point cloud (to be added)
 - The json is transmitted as a single line ended with "\r\n"
