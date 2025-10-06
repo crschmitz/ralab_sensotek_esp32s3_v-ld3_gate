@@ -86,6 +86,7 @@ public:
     uint32_t timer = 0;
     uint64_t lastTick = 0;
     uint8_t retries = 0;
+    uint32_t persons = 0;
   } mmwave;
 
 private:

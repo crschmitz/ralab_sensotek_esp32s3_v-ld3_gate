@@ -108,6 +108,8 @@ Each frame corresponds to a parsed radar data packet and includes:
 - `res` *(object)* — Command payload:
   - `frame` *(int)* — Frame counter since boot/config.
   - `dt` *(int, ms)* — Time since previous frame (milliseconds).
+  - `persons` *(int)* — Number of persons tracked in current frame.
+  - `use_case` *(list)* — List of use cases IDs in current frame (see table 1). If no use case detected, the list will be empty ([]).
   - `tgt` *(array)* — List of detected targets (zero or more). Each target:
     - `id` *(int)* — Track identifier (unique while the track is active).
     - `x`, `y`, `z` *(float, meters)* — Position in the configured coordinate system.
@@ -127,6 +129,9 @@ If the sensor isn’t configured (e.g., after reset), the reply is:
 ```
 
 Send a `cfg` message (with `file` and `crc32`) before requesting frames again.
+
+
+
 
 #### ⚠️ CRC on detection messages — short note
 
@@ -159,6 +164,27 @@ If -f file is not provided, then a `get` command is issued:
 ```powershell
 python command.py --port /dev/ttyACM0
 ```
+
+### Use cases
+
+This table shows all planned use cases:
+
+| Use Case | ID                                |
+| ----- | ------------------------------------------ |
+| Tailgating | 1   |
+| Unterkriechen | 2   |
+| Sicherheitszonen | 3   |
+| Gegenlaufverstoß | 4   |
+| Unerlaubt. Übersteigen | 5   |
+| Durchgang mit Trolley | 6   |
+| Unerlaubtes Offenhalten | 7   |
+| Aufdrücken | 8   |
+| Überwachen des Schwenkbereiches | 9   |
+| Querverkehr | 10  |
+
+_Table 1: Use Cases ID_
+
+
 
 ### Status message
 
@@ -241,6 +267,8 @@ sensorStart 0 0 0 0
 | ----- | ---- | ------------------------------------------ |
 | `frame` | int  | Frame number reported by mmWave sensor   |
 | `dt`  | int  | Time delta from last frame in milliseconds |
+| `persons` | int  | Number of persons in current frame |
+| `use_case`  | list | List of detected use cases ID |
 
 ### 🔹 targets Array
 

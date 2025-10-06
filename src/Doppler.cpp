@@ -294,6 +294,8 @@ bool Doppler::parseTargetListTLV_308(const uint8_t* tlvPayload, int length) {
   const uint32_t count = (uint32_t)((size_t)length / entrySize);
   const TargetExt308* tgt = reinterpret_cast<const TargetExt308*>(tlvPayload);
 
+  this->mmwave.persons = count;
+
   for (uint32_t i = 0; i < count; ++i) {
 
     if (i > 0) {
@@ -587,6 +589,7 @@ void Doppler::exec() {
               this->jsonFrame += String(elapsed);
               this->jsonPoints = "";
               this->jsonTargets = "";
+              this->mmwave.persons = 0;
 
               // printHeader(&this->mmwave.rx.message.header);
             } else {
@@ -610,6 +613,10 @@ void Doppler::exec() {
                 Serial.print(this->jsonLine);
 
                 String payload = this->jsonFrame;
+                payload += ",\"persons\":";
+                payload += String(this->mmwave.persons);
+                payload += ",\"use_case\":[]";
+
                 if (this->jsonTargets.length() > 0) {
                   payload += ",\"tgt\":[";
                   payload += this->jsonTargets + "]";
