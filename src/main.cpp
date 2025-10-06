@@ -91,7 +91,7 @@ void setup()
   pinMode(IO8, OUTPUT);
   digitalWrite(IO8, LOW);
   delay(1000);
-  pinMode(IO8, INPUT);
+  pinMode(IO8, INPUT_PULLUP);
 
   esp_task_wdt_reset();
 
