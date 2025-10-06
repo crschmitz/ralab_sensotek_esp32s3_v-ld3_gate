@@ -65,6 +65,7 @@ Message from host :arrow_right: ESP32
 ```json
 {"id":1,"cmd":"cfg","file":"sensorStop 0\nchannelCfg 7 3 0\nchirpComnCfg 10 0 0 128 4 28 0\nchirpTimingCfg 6 32 0 100 57.5\nframeCfg 2 0 250 32 100 0\nantGeometryCfg 1 0 0 1 1 2 1 1 0 2 1 3 2.5 2.5\nguiMonitor 2 3 0 0 0 1 0 0 1 1 1\nsigProcChainCfg 32 2 3 2 8 8 1 0.3\ncfarCfg 2 8 4 3 0 12.0 0 0.5 0 1 1 1\naoaFovCfg -70 70 -40 40\nrangeSelCfg 0.1 10.0\nclutterRemoval 1\ncompRangeBiasAndRxChanPhase 0.0 1.00000 0.00000 -1.00000 0.00000 1.00000 0.00000 -1.00000 0.00000 1.00000 0.00000 -1.00000 0.00000\nadcDataSource 0 adc_data_0001_CtestAdc6Ant.bin\nadcLogging 0\nlowPowerCfg 0\nfactoryCalibCfg 1 0 40 0 0x1ff000\nboundaryBox -3.075 1.425 0 3.0 0.2 3\nsensorPosition 0.825 0 1.3 -45 -30\nstaticBoundaryBox -2.025 0.375 0 1.0 0.3 3\ngatingParam 3 2 2 2 4\nstateParam 3 3 12 50 5 200\nallocationParam 6 10 0.1 4 0.5 20\nmaxAcceleration 0.4 0.4 0.1\ntrackingCfg 1 2 100 3 61.4 191.8 20\npresenceBoundaryBox -3.075 1.425 0 3.0 0.2 3\nmicroDopplerCfg 1 0 0.5 0 1 1 12.5 87.5 1\nclassifierCfg 1 3 4\nbaudRate 1250000\nsensorStart 0 0 0 0\n","crc":224053240}␍␊
 ```
+
 Response to host :arrow_left: ESP32
 
 If JSON message is valid and CRC is correct, the ESP32 will respond "done" like this:
@@ -152,10 +153,42 @@ A Python script was created to read the .cfg file and send to ESP32 for tests an
 ```powershell
 python command.py -f gate.cfg --port /dev/ttyACM0
 ```
+
 If -f file is not provided, then a `get` command is issued:
+
 ```powershell
 python command.py --port /dev/ttyACM0
 ```
+
+### Status message
+
+To read the sensor message, which includes firmware version, date and sensor state,  the status message can be used:
+
+Message from host :arrow_right: ESP32
+
+```json
+{"id":1,"cmd":"status"}\r\n
+```
+
+Response to host :arrow_left: ESP32
+
+```json
+{"id":1,"cmd":"status","res":"V103, (05.10.2025), State:4"}␍␊
+```
+
+Response meaning:
+
+- `V103` = firmware version
+- `05.10.2025` = firmware date
+- `State:n` = mmWave sensor state
+  - `State:0` = Idle state, sensor not configured, waiting for "cfg" message
+  - `State:1` = Reading next configuration line
+  - `State:2` = Sending configuration line to mmWave sensor
+  - `State:3` = Waiting for echo from wwWave Sensor
+  - `State:4` = Sensor configured and running
+  - `State:5` = Reading TLV data from sensor
+
+In normal operation after configuration, sensor state will be 4 (or 5 eventually).
 
 ### Configuration file used
 
