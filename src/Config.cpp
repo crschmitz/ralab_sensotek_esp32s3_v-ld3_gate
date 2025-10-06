@@ -104,7 +104,6 @@ void Config::printConfiguration() {
   Serial.printf("mmWave Sensor Sensotek v%s - %s\r\n", FirmwareVersion, FirmwareDate);
   Serial.printf("\r\n");
   Serial.printf("Sizeof: %d bytes\r\n", sizeof(this->parameters));
-  readAndPrintConfig();
 }
 
 uint32_t Config::getCRC() {

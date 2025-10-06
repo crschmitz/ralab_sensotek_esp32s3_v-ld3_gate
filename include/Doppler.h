@@ -19,6 +19,15 @@ enum : uint32_t {
   TLV_TRACK_EXTENT_HEIGHT    = 311,
 };
 
+typedef enum {
+  MMWAVE_IDLE = 0,
+  MMWAVE_READ_LINE,
+  MMWAVE_SEND_LINE,
+  MMWAVE_WAIT_ECHO,
+  MMWAVE_DONE,
+  MMWAVE_TLV,
+} mmwave_state_e;
+
 typedef struct OutputMessageHeader {
   uint16_t magicWord[4];      /* Sync word: {0x0102,0x0304,0x0506,0x0708} */
   uint32_t version;           /* MajorNum*2^24+MinorNum*2^16+BugfixNum*2^8+BuildNum */
@@ -44,13 +53,17 @@ public:
   bool parsePointCloudExtTLV(const uint8_t* payload, int length);
   bool parseTargetListTLV_308(const uint8_t* tlvPayload, int length);
 
+  void handleGetCommand(String incoming);
+  void handleStatusCommand(String incoming);
   void setJsonLine(const String &line) { this->jsonLine = line; }
   String getJsonLine() { return this->jsonLine; }
 
   void setCfgString(const String &cfg) { this->mmwave.cfgString = cfg; }
 
+  mmwave_state_e getState() { return this->mmwave.state; }
+
   struct {
-    uint8_t state;
+    mmwave_state_e state;
     uint8_t timeout;
     uint8_t cycle;
 
@@ -70,15 +83,17 @@ public:
     fs::File cfgFile;
     String currentLine;
     String cfgString;
+    uint32_t timer = 0;
     uint64_t lastTick = 0;
     uint8_t retries = 0;
-    uint32_t lastSendTime = 0;
   } mmwave;
 
 private:
   bool process();
   void flush();
   String getNextLine();
+  void replyRes(String incoming, String msg);
+  void replyRes(String incoming, int value);
 
   String jsonLine;
   String jsonFrame;
@@ -91,7 +106,5 @@ private:
 
 uint16_t Succ(uint16_t i, uint16_t size);
 uint16_t Pred(uint16_t i, uint16_t size);
-void createDefaultConfig();
-void readAndPrintConfig();
 
 #endif // DOPPLER_H

@@ -43,8 +43,9 @@ void Usart::handleIncomingJson(const String &incoming) {
       String cmd = doc["cmd"].as<const char*>();
       // If command is "get", save the JSON line to Doppler
       if (cmd == "get") {
-        doppler.setJsonLine(incoming);
-      // If command is "cfg", update configuration parameters
+        doppler.handleGetCommand(incoming);
+      } else if (cmd == "status") {
+        doppler.handleStatusCommand(incoming);
       } else if (cmd == "cfg") {
         // Check for required keys
         if (doc.containsKey("file")) {
@@ -58,7 +59,7 @@ void Usart::handleIncomingJson(const String &incoming) {
               result = "CRC Error";
             } else {
               doppler.setCfgString(cfg);
-              result = "Done";
+              result = "done";
             }
             doc.remove("file");
             doc.remove("crc");
@@ -233,10 +234,6 @@ bool Usart::updateParam(float *param, float min, float max) {
 void Usart::execCommand() {
   if (!this->argv[0].compareTo("h")) {
     this->printHelp();
-
-  } else if (!this->argv[0].compareTo("factory")) {
-    Serial.printf("Factory defaults\r\n");
-    createDefaultConfig();
 
   } else if (!this->argv[0].compareTo("version")) {
     doppler.version();
