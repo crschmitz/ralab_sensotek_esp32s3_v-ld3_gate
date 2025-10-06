@@ -1,5 +1,4 @@
 #include "Doppler.h"
-#include "Config.h"
 #include "Usart.h"
 #include "Timer.h"
 #include "defines.h"
@@ -9,7 +8,6 @@ extern "C" {
   #include "esp32/rom/crc.h"
 }
 
-extern Config config;
 extern Usart usart;
 extern Doppler doppler;
 extern Timer timer;
