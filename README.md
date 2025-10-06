@@ -98,7 +98,7 @@ Each frame corresponds to a parsed radar data packet and includes:
 ## 🧪 Example JSON — `get` reply (success)
 
 ```json
-{"id":1,"cmd":"get","res":{"frame":195,"dt":100,"tgt":[{"id":1,"x":0.485,"y":0.450,"z":0.009,"vx":-0.272,"vy":0.246,"vz":-0.018,"ax":-0.247,"ay":-0.162,"az":-0.005,"cf":0.941,"gf":3.000}]},"crc":1427389397}␍␊
+{"id":1,"cmd":"get","res":{"frame":835,"dt":100,"persons":1,"use_case":[],"tgt":[{"id":2,"x":0.737,"y":0.524,"z":-0.000,"vx":0.123,"vy":-0.093,"vz":-0.000,"ax":0.231,"ay":-0.138,"az":-0.000,"cf":0.991,"gf":3.000}]},"crc":1131263550}␍␊
 ```
 
 **Field meanings**
@@ -120,7 +120,7 @@ Each frame corresponds to a parsed radar data packet and includes:
 - `crc` *(uint32, decimal)* — Optional checksum over the `res` block (telemetry).  
   *Note:* The CRC is calculated over entire `res` field, including the brackets "{...}". The receiver should calculate over the received String, since JsonLoads
 
-**Error case**
+#### Error case
 
 If the sensor isn’t configured (e.g., after reset), the reply is:
 
@@ -129,9 +129,6 @@ If the sensor isn’t configured (e.g., after reset), the reply is:
 ```
 
 Send a `cfg` message (with `file` and `crc32`) before requesting frames again.
-
-
-
 
 #### ⚠️ CRC on detection messages — short note
 
