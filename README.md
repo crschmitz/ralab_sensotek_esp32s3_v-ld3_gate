@@ -162,7 +162,7 @@ python command.py --port /dev/ttyACM0
 
 ### Status message
 
-To read the sensor message, which includes firmware version, date and sensor state,  the status message can be used:
+To read the status message, which includes firmware version, date and sensor state,  the following message can be used:
 
 Message from host :arrow_right: ESP32
 
