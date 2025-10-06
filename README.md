@@ -26,7 +26,7 @@ This document describes the structure of the JSON frames sent by the radar gate 
 Each JSON message is serialized in a single line and terminated with a carriage return and newline (\r\n).
 This makes it easier to parse over serial/UART or network streams where line-based processing is expected.
 The communication topology is master x slave, with the sensor acting as slave (it will not start a communication, except for the log messages when ESP32 is booting).
-Some fields are commom to all JSON messages:
+Some fields are common to all JSON messages:
 
 - `"id"` (integer): Sensor address on the bus. For single‑sensor setups, always use `1`.
 - `"cmd"` (string): Command verb for the message. Implemented commands are:
@@ -34,11 +34,11 @@ Some fields are commom to all JSON messages:
   - `"cfg"`: send configuration file (.cfg) as a string inside field "file". The cfg message also includes a crc field 
   - `"status"`: request the sensor status
 
-- `"res"` (string): the response field is appened to the reply message
+- `"res"` (object|string): Reply payload. An **object** on success (e.g., frame data) and a **string** on status/error (e.g., `"busy"`, `"error"`).
 
 > Notes
 > - For multi‑sensor deployments, set `id` to the target sensor’s address (1..N).
-> - Messages are whitespace‑agnostic, but the examples here omit spaces for compactness.
+> - Parsers are whitespace‑tolerant; however, **CRC verification must use the exact raw bytes** as received.
 
 ### Request frame message
 
@@ -58,10 +58,7 @@ So the host computer should send the configuration message.
 ### Configuration Message
 
 The configuration is a serialization of the .cfg file, with a '\n' to separate each line. The last field should be the "crc" field (CRC32). The CRC is calculated only over the file contents (contents of "file" field).
-The ESP32 will check the CRC using this command:
-```c
-uint32_t calc_crc = crc32_le(0, (const uint8_t*)cfg.c_str(), cfg.length());
-```
+The ESP32 validates the CRC using **CRC-32/MPEG-2** as specified in the CRC section below.
 Message from host :arrow_right: ESP32
 
 ```json
@@ -75,13 +72,13 @@ If JSON message is valid and CRC is correct, the ESP32 will respond "done" like 
 {"id":1,"cmd":"cfg","res":"done"}␍␊
 ```
 
-The response is immediate, before all commands were actually send to the mmWave sensor. While the sensor is being configured, in case a "get" command is received, the response will be "busy":
+The response is immediate, before all commands were actually sent to the mmWave sensor. While the sensor is being configured, in case a "get" command is received, the response will be "busy":
 
 ```json
 {"id":1,"cmd":"get","res":"busy"}␍␊
 ```
 
-The busy state lasts only for a few seconds. In case the sensor does not accept the configuration, the ESP32 will try for up to 5 times to send the configuration commands. If the configuration is not succeeded, the ESP32 will respond "error" to the get messages after 6 seconds, then the host computer should try to send the configuration again.
+The busy state lasts only for a few seconds. In case the sensor does not accept the configuration, the ESP32 will try for up to 5 times to send the configuration commands. If the configuration is not succeeded, the ESP32 will respond "error" to the get messages after 6 seconds, then the host computer should try sending the configuration again.
 
 ## Detection messages
 
@@ -140,20 +137,71 @@ Send a `cfg` message (with `file` and `crc32`) before requesting frames again.
 * **Algorithm:** CRC-32/MPEG-2 (poly `0x04C11DB7`, init `0xFFFFFFFF`, refin/refout **false/false**, xorout `0x00000000`).
 * **Procedure:** read the line as **bytes** → slice the `res` `{...}` span → CRC-32/MPEG-2 on that slice → compare with `crc` (decimal).
 
+On ESP32, the CRC is calculated with this function:
 
+```c
+extern "C" {
+  #include "esp32/rom/crc.h"
+}
+...
+uint32_t calc_crc = crc32_le(0, (const uint8_t*)cfg.c_str(), cfg.length());
+```
 
+A Python script was created to read the .cfg file and send to ESP32 for tests and validation. This script is located in python folder, and can be executed in Linux like this:
 
+```powershell
+python command.py -f gate.cfg --port /dev/ttyACM0
+```
+If -f file is not provided, then a `get` command is issued:
+```powershell
+python command.py --port /dev/ttyACM0
+```
+
+### Configuration file used
+
+This is the configuration file used during the tests. It can be changed as needed, but be sure to keep the track report (TLV 308) enabled.
+
+```powershell
+sensorStop 0
+channelCfg 7 3 0
+chirpComnCfg 10 0 0 128 4 28 0
+chirpTimingCfg 6 32 0 100 57.5
+frameCfg 2 0 250 32 100 0
+antGeometryCfg 1 0 0 1 1 2 1 1 0 2 1 3 2.5 2.5
+guiMonitor 2 3 0 0 0 1 0 0 1 1 1
+sigProcChainCfg 32 2 3 2 8 8 1 0.3
+cfarCfg 2 8 4 3 0 12.0 0 0.5 0 1 1 1
+aoaFovCfg -70 70 -40 40
+rangeSelCfg 0.1 10.0
+clutterRemoval 1
+compRangeBiasAndRxChanPhase 0.0 1.00000 0.00000 -1.00000 0.00000 1.00000 0.00000 -1.00000 0.00000 1.00000 0.00000 -1.00000 0.00000
+adcDataSource 0 adc_data_0001_CtestAdc6Ant.bin
+adcLogging 0
+lowPowerCfg 0
+factoryCalibCfg 1 0 40 0 0x1ff000
+boundaryBox -3.075 1.425 0 3.0 0.2 3
+sensorPosition 0.825 0 1.3 -45 -30
+staticBoundaryBox -2.025 0.375 0 1.0 0.3 3
+gatingParam 3 2 2 2 4
+stateParam 3 3 12 50 5 200
+allocationParam 6 10 0.1 4 0.5 20
+maxAcceleration 0.4 0.4 0.1
+trackingCfg 1 2 100 3 61.4 191.8 20
+presenceBoundaryBox -3.075 1.425 0 3.0 0.2 3
+microDopplerCfg 1 0 0.5 0 1 1 12.5 87.5 1
+classifierCfg 1 3 4
+baudRate 1250000
+sensorStart 0 0 0 0
+```
 
 ### 📦 Top-Level Fields
 
-| Field                 | Type   | Description                            |
-| --------------------- | ------ | -------------------------------------- |
-| `id`                  | object | Sensor address on the bus. For single-sensor use `1`.   |
-| `cmd`                 | object | Command verb   |
-| `res`                 | object | Response message from ESP32   |
-| `tgt`                 | array  | List of tracked targets (can be empty) |
-| `raw`    *(optional)* | array  | Raw detection points if enabled        |
-
+| Field | Type | Description |
+|---|---|---|
+| `id`  | int    | Sensor address on the bus. For single-sensor use `1`. |
+| `cmd` | string | Command verb (`get`, `cfg`, `status`). |
+| `res` | object or string | Reply payload — object on success (e.g., frame data) or string on status/error (`"busy"`, `"error"`). |
+| `crc` | uint32 (decimal) | **Detection replies only:** CRC over the raw bytes of `res` (see CRC note). |
 ### 🔹 frame Object
 
 | Field | Type | Description                                |
@@ -184,7 +232,7 @@ Data extracted from TLV 308 (Target List), part of the radar’s tracking engine
 - Fields are truncated to 3 decimal places;
 - All coordinates are expressed relative to the R0 reference point, where (0, 0, 0) denotes the R0 origin;
 - Units are metric;
-- If no targets are detected in a frame, then "targets" is not included in the json message.
+- If no targets are detected in a frame, the `tgt` array will be empty or omitted inside `res`.
 
 
 ### 📄 Changelog
