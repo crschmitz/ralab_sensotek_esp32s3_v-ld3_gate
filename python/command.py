@@ -74,6 +74,7 @@ def read_json_string(ser, timeout=1.0):
             return None
 
         c = ser.read(1).decode("utf-8", errors="replace")
+        
         if not c:
             continue  # no new byte, keep waiting
 
@@ -135,8 +136,9 @@ def main():
     parser.add_argument("--id", type=int, default=1, help="Message ID (default: 1)")
     parser.add_argument("--cmd", default="get", help='Command string when not sending a file (default: "get")')
     parser.add_argument("-f", "--filename", help="If provided, send a cfg message with file contents + crc")
-    parser.add_argument("--port", default="/dev/ttyACM0",
-                        help=r'Serial port (default: "/dev/ttyACM0"; "\\dev\\ttyACM0" also accepted)')
+    parser.add_argument("--port", default="/dev/ttyACM0", help=r'Serial port (default: "/dev/ttyACM0"; "\\dev\\ttyACM0" also accepted)')
+    parser.add_argument("--time", type=float, default=0, help="Time interval between repeated commands (default: 0 = no repetition)")
+    parser.add_argument('--debug', action='store_true', default=False, help='Activate debug mode')
     args = parser.parse_args()
 
     port = normalize_port(args.port)
@@ -149,38 +151,42 @@ def main():
     print("Sending: ", line.strip())
     print()
 
-    try:       
-        with serial.Serial(port, baudrate=921600, timeout=1) as ser:           
-            # Start with a clean buffer so we only read the fresh reply
-            ser.reset_input_buffer()
-            ser.reset_output_buffer()
-            time.sleep(0.05)
+    with serial.Serial(port, baudrate=921600, timeout=0.5) as ser:           
 
-            ser.write(line.encode("utf-8"))
-            ser.flush()
+        while True:
+            try:       
+                ser.reset_input_buffer()
+                ser.reset_output_buffer()
+                ser.write(line.encode("utf-8"))
+                ser.flush()
+                response = read_json_string(ser, timeout=0.25)
+                if response is None:
+                    print("No valid JSON received")
+                    continue
+                else:
+                    print("Received:", response)
 
-            response = read_json_string(ser, timeout=1.0)
-            if response is None:
-                print("No valid JSON received")
-            else:
-                print("Received:", response)
+                    msg = json.loads(response)
+                    if args.debug:
+                        for key, value in msg.items():
+                            print(f"  {key}: {value}")
 
-                msg = json.loads(response)
-                for key, value in msg.items():
-                    print(f"  {key}: {value}")
-
-                if msg.get("cmd") == "get":
-                    if "crc" in msg:
-                        res = extract_res_field(response)
-                        crc_value = zlib.crc32(res.encode("utf-8")) & 0xFFFFFFFF
-                        if crc_value == msg.get("crc"):
-                            print("CRC OK!")
-                        else:
-                            print(f"CRC MISMATCH! Calculated: {crc_value}, Expected: {msg.get('crc')}")
-
-    except Exception as e:
-        print(f"Error opening/sending to serial port '{port}': {e}", file=sys.stderr)
-        sys.exit(1)
+                        if msg.get("cmd") == "get":
+                            if "crc" in msg:
+                                res = extract_res_field(response)
+                                crc_value = zlib.crc32(res.encode("utf-8")) & 0xFFFFFFFF
+                                if crc_value == msg.get("crc"):
+                                    print("CRC OK!")
+                                else:
+                                    print(f"CRC MISMATCH! Calculated: {crc_value}, Expected: {msg.get('crc')}")
+                if args.time > 0:
+                    time.sleep(args.time)
+                else:
+                    break
+    
+            except Exception as e:
+                print(f"Error opening/sending to serial port '{port}': {e}", file=sys.stderr)
+                pass
 
 
 if __name__ == "__main__":

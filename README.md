@@ -98,7 +98,7 @@ Each frame corresponds to a parsed radar data packet and includes:
 ## 🧪 Example JSON — `get` reply (success)
 
 ```json
-{"id":1,"cmd":"get","res":{"frame":195,"dt":100,"tgt":[{"id":1,"x":0.485,"y":0.450,"z":0.009,"vx":-0.272,"vy":0.246,"vz":-0.018,"ax":-0.247,"ay":-0.162,"az":-0.005,"cf":0.941,"gf":3.000}]},"crc":1427389397}␍␊
+{"id":1,"cmd":"get","res":{"frame":835,"dt":100,"persons":1,"use_case":[],"tgt":[{"id":2,"x":0.737,"y":0.524,"z":-0.000,"vx":0.123,"vy":-0.093,"vz":-0.000,"ax":0.231,"ay":-0.138,"az":-0.000,"cf":0.991,"gf":3.000}]},"crc":1131263550}␍␊
 ```
 
 **Field meanings**
@@ -108,6 +108,8 @@ Each frame corresponds to a parsed radar data packet and includes:
 - `res` *(object)* — Command payload:
   - `frame` *(int)* — Frame counter since boot/config.
   - `dt` *(int, ms)* — Time since previous frame (milliseconds).
+  - `persons` *(int)* — Number of persons tracked in current frame.
+  - `use_case` *(list)* — List of use cases IDs in current frame (see table 1). If no use case detected, the list will be empty ([]).
   - `tgt` *(array)* — List of detected targets (zero or more). Each target:
     - `id` *(int)* — Track identifier (unique while the track is active).
     - `x`, `y`, `z` *(float, meters)* — Position in the configured coordinate system.
@@ -118,7 +120,7 @@ Each frame corresponds to a parsed radar data packet and includes:
 - `crc` *(uint32, decimal)* — Optional checksum over the `res` block (telemetry).  
   *Note:* The CRC is calculated over entire `res` field, including the brackets "{...}". The receiver should calculate over the received String, since JsonLoads
 
-**Error case**
+#### Error case
 
 If the sensor isn’t configured (e.g., after reset), the reply is:
 
@@ -159,6 +161,26 @@ If -f file is not provided, then a `get` command is issued:
 ```powershell
 python command.py --port /dev/ttyACM0
 ```
+
+### Use cases
+
+This table shows all planned use cases:
+
+| Use Case | ID                                |
+| ----- | ------------------------------------------ |
+| Tailgating | 1   |
+| Unterkriechen | 2   |
+| Sicherheitszonen | 3   |
+| Gegenlaufverstoß | 4   |
+| Unerlaubt. Übersteigen | 5   |
+| Durchgang mit Trolley | 6   |
+| Unerlaubtes Offenhalten | 7   |
+| Aufdrücken | 8   |
+| Überwachen des Schwenkbereiches | 9   |
+| Querverkehr | 10  |
+
+_Table 1: Use Cases ID_
+
 
 ### Status message
 
@@ -241,6 +263,8 @@ sensorStart 0 0 0 0
 | ----- | ---- | ------------------------------------------ |
 | `frame` | int  | Frame number reported by mmWave sensor   |
 | `dt`  | int  | Time delta from last frame in milliseconds |
+| `persons` | int  | Number of persons in current frame |
+| `use_case`  | list | List of detected use cases ID |
 
 ### 🔹 targets Array
 
@@ -270,6 +294,22 @@ Data extracted from TLV 308 (Target List), part of the radar’s tracking engine
 
 ### 📄 Changelog
 
+- **V104 (08.10.2025)** 
+  - Tailgating and cross traffic use cases included
+
+> ### 🧭 Use Cases Conditions
+>
+> **Tailgating**
+> - Condition: exists a pair (i, j) such that  
+>   - `yᵢ < 2 m` and `yⱼ < 2 m`  
+>   - `|xᵢ − xⱼ| ≤ 1 m`  
+>   - `|yᵢ − yⱼ| ≤ 1 m`
+>
+> **Cross Traffic**
+> - Condition: target below 2 m
+> - `|vx| > 0.3 m/s` and `|vy| < 0.2 m/s`
+
+
 - **V103 (05.10.2025)** — Updates defined in the 01.10.2025 meeting (Yannik & Claudio):
   - All host↔ESP32 messages use the JSON schema described in this document.
   - ESP32 acts as a slave and only transmits on request via the `get` command.
@@ -278,3 +318,4 @@ Data extracted from TLV 308 (Target List), part of the radar’s tracking engine
   - ESP32 does not evaluate zones; it only reports targets. Zone logic is handled by the Linux host.
   - Higher measurement rates are supported (as defined in the `.cfg` file).
 - **v1.0**: Initial JSON schema for targets and zones
+

@@ -138,8 +138,14 @@ uint16_t Pred(uint16_t i, uint16_t size)
   return i;
 }
 
-bool isHeaderValid(MmwDemo_output_message_header_t *header)
-{
+// helper: add only if not already present
+inline void addUniqueUseCase(std::vector<UseCase_enum>& v, UseCase_enum uc) {
+    if (std::find(v.begin(), v.end(), uc) == v.end()) {
+        v.push_back(uc);
+    }
+}
+
+bool isHeaderValid(MmwDemo_output_message_header_t *header) {
   // Check if the magic word matches
   if (memcmp(header->magicWord, MAGIC_WORD, sizeof(MAGIC_WORD)) != 0)
   {
@@ -321,11 +327,21 @@ bool Doppler::parseTargetListTLV_308(const uint8_t *tlvPayload, int length)
   const uint32_t count = (uint32_t)((size_t)length / entrySize);
   const TargetExt308 *tgt = reinterpret_cast<const TargetExt308 *>(tlvPayload);
 
-  for (uint32_t i = 0; i < count; ++i)
-  {
+  this->mmwave.persons = count;
 
-    if (i > 0)
-    {
+  for (uint32_t i = 0; i < count; ++i) {
+
+    Target_t t = { 
+      tgt[i].tid,
+      tgt[i].posX, tgt[i].posY, tgt[i].posZ,
+      tgt[i].velX, tgt[i].velY, tgt[i].velZ,
+      tgt[i].accX, tgt[i].accY, tgt[i].accZ,
+      tgt[i].confidence,
+      tgt[i].g
+    };
+    this->mmwave.targets.push_back(t);
+
+    if (i > 0) {
       this->jsonTargets += ","; // add comma between objects
     }
     this->jsonTargets += "{";
@@ -497,43 +513,56 @@ void Doppler::handleStatusCommand(String incoming)
   this->replyRes(incoming, resp);
 }
 
-void Doppler::exec()
-{
-  switch (this->mmwave.state)
-  {
-  case MMWAVE_IDLE:
-    if (this->mmwave.cfgString.length() > 0)
-    {
-      this->mmwave.state = MMWAVE_READ_LINE;
+void Doppler::handleUseCase() {
+  // If there are targets, analyze them to determine use cases
+  if (this->mmwave.targets.size() > 0) {
+    // ---- Cross Traffic evaluation ----
+    // Condition: target below 2m with |vx| above 0.3m/s and |vy| < 0.2m/s
+    for(size_t i = 0; i < this->mmwave.targets.size(); ++i) {
+      // Skip if too far in y
+      if (this->mmwave.targets[i].y > 2.0f)
+        continue;
+      // Simple heuristic rules to determine use case
+      if (fabs(this->mmwave.targets[i].vx) > 0.3 && fabs(this->mmwave.targets[i].vy) < 0.2) {
+        addUniqueUseCase(this->mmwave.useCases, UseCase_enum::CrossTraffic);
+      }
     }
-    break;
 
-  case MMWAVE_READ_LINE:
-    this->mmwave.currentLine = this->getNextLine();
-    // If it's a non-comment nor empty line, send it
-    if (!this->mmwave.currentLine.startsWith("%") && !this->mmwave.currentLine.isEmpty())
-    {
-      this->mmwave.retries = 0;
-      this->mmwave.state = MMWAVE_SEND_LINE;
+    // ---- Tailgating (pair-based proximity) ----
+    // Condition: exists a pair (i, j) such that:
+    //    y < 2 m  AND  |x_i-x_j| <= 1 m  AND  |y_i-y_j| <= 1 m
+    bool tailgating = false;
+    // Check all pairs (i, j)
+    for (size_t i = 0; i < this->mmwave.targets.size() && !tailgating; ++i) {
+      // Skip if too far in y
+      if (this->mmwave.targets[i].y > 2.0f)
+        continue;
+      // Check all j > i
+      for (size_t j = i + 1; j < this->mmwave.targets.size(); ++j) {
+        // Skip if too far in y
+        if (this->mmwave.targets[j].y > 2.0f)
+          continue; // skip if too far in y
+
+        // Check proximity in x and y
+        float dy = fabs(this->mmwave.targets[i].y - this->mmwave.targets[j].y);
+        float dx = fabs(this->mmwave.targets[i].x - this->mmwave.targets[j].x);
+        if (dx <= 1 && dy <= 1) {
+          tailgating = true;
+          break;
+        }
+      }
     }
-    break;
+    // If found, add use case
+    if (tailgating) {
+      addUniqueUseCase(this->mmwave.useCases, UseCase_enum::Tailgating);
+    }
+  }
+}
 
-  case MMWAVE_SEND_LINE:
-    Serial.println(this->mmwave.currentLine); // Debug output
-    SerialRadar.println(this->mmwave.currentLine);
-    if (this->mmwave.currentLine.startsWith("baudRate"))
-    {
-      int spaceIndex = this->mmwave.currentLine.indexOf(' ');
-      if (spaceIndex > 0)
-      {
-        String baudStr = this->mmwave.currentLine.substring(spaceIndex + 1); // "1250000"
-        long baud = baudStr.toInt();                                         // convert to integer
-        // ✅ Ensure last message really went out
-        SerialRadar.flush();
-        // Now it's safe to switch
-        SerialRadar.end();
-        SerialRadar.begin(baud, SERIAL_8N1, RADAR_RX, RADAR_TX);
-        // Don't wait for echo, just proceed to next line
+void Doppler::exec() {
+  switch (this->mmwave.state) {
+    case MMWAVE_IDLE:
+      if (this->mmwave.cfgString.length() > 0) {
         this->mmwave.state = MMWAVE_READ_LINE;
       }
     }
@@ -633,42 +662,73 @@ void Doppler::exec()
             this->jsonPoints = "";
             this->jsonTargets = "";
           }
-          else
-          {
-            this->mmwave.rx.ctr = 0; // Reset counter
+        // Receive the header until it's complete
+        } else if (this->mmwave.rx.ctr < sizeof(MmwDemo_output_message_header_t)) {
+          this->mmwave.rx.message.buffer[this->mmwave.rx.ctr++] = c;
+          // Else header is complete...
+          if (this->mmwave.rx.ctr == sizeof(MmwDemo_output_message_header_t)) {
+            // If header is not valid, reset counter
+            if (isHeaderValid(&this->mmwave.rx.message.header)) {
+              const uint32_t elapsed = doppler.getInterval(&doppler.mmwave.lastTick);
+              this->jsonFrame = "{\"frame\":";
+              this->jsonFrame += this->mmwave.rx.message.header.frameNumber;
+              this->jsonFrame += ",\"dt\":";
+              this->jsonFrame += String(elapsed);
+              this->jsonPoints = "";
+              this->jsonTargets = "";
+              this->mmwave.persons = 0;
+              this->mmwave.targets.clear();
+              this->mmwave.useCases.clear();
+
+              // printHeader(&this->mmwave.rx.message.header);
+            } else {
+              // Serial.println("Invalid header received!");
+              this->mmwave.rx.ctr = 0; // Reset counter
+            }
           }
         }
         // Else receive the TLV data
-      }
-      else if (this->mmwave.rx.ctr < this->mmwave.rx.message.header.totalPacketLen)
-      {
-        this->mmwave.rx.message.buffer[this->mmwave.rx.ctr++] = c;
-        // If message is complete...
-        if (this->mmwave.rx.ctr == this->mmwave.rx.message.header.totalPacketLen)
-        {
-          // Parse TLVs
-          if (parseTLVs(this->mmwave.rx.message.buffer))
-          {
-            if (this->jsonLine.length() > 0)
-            {
-              int pos = this->jsonLine.lastIndexOf('}');
-              if (pos >= 0)
-              {
-                this->jsonLine.remove(pos);
-              }
-              this->jsonLine += ",\"res\":";
-              Serial.print(this->jsonLine);
+        } else if (this->mmwave.rx.ctr < this->mmwave.rx.message.header.totalPacketLen) {
+          this->mmwave.rx.message.buffer[this->mmwave.rx.ctr++] = c;
+          // If message is complete...
+          if (this->mmwave.rx.ctr == this->mmwave.rx.message.header.totalPacketLen) {
+            // Parse TLVs
+            if (parseTLVs(this->mmwave.rx.message.buffer)) {
+              if (this->jsonLine.length() > 0) {
+                int pos = this->jsonLine.lastIndexOf('}');
+                if (pos >= 0) {
+                  this->jsonLine.remove(pos);
+                }
+                this->jsonLine += ",\"res\":";
+                Serial.print(this->jsonLine);
 
-              String payload = this->jsonFrame;
-              if (this->jsonTargets.length() > 0)
-              {
-                payload += ",\"tgt\":[";
-                payload += this->jsonTargets + "]";
-              }
-              if (this->jsonPoints.length() > 0)
-              {
-                payload += ",\"raw\":[";
-                payload += this->jsonPoints + "]";
+                this->handleUseCase();
+
+                String payload = this->jsonFrame;
+                payload += ",\"persons\":";
+                payload += String(this->mmwave.persons);
+                payload += ",\"use_case\":[";
+                for (size_t i = 0; i < this->mmwave.useCases.size(); ++i) {
+                    payload += String(static_cast<uint8_t>(this->mmwave.useCases[i]));  // convert enum to number
+                    if (i < this->mmwave.useCases.size() - 1)
+                        payload += ",";
+                }
+                payload += "]";
+
+                if (this->jsonTargets.length() > 0) {
+                  payload += ",\"tgt\":[";
+                  payload += this->jsonTargets + "]";
+                }
+                if (this->jsonPoints.length() > 0) {
+                  payload += ",\"raw\":[";
+                  payload += this->jsonPoints + "]";
+                }
+                payload += "}";
+                uint32_t crc = crc32_le(0, (const uint8_t*)payload.c_str(), payload.length());
+                payload += ",\"crc\":" + String(crc);
+                Serial.print(payload);
+                Serial.println("}");
+                this->jsonLine = "";
               }
               payload += "}";
               uint32_t crc = crc32_le(0, (const uint8_t *)payload.c_str(), payload.length());
