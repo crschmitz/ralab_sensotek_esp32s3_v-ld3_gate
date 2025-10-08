@@ -519,6 +519,7 @@ void Doppler::exec()
     break;
 
   case MMWAVE_SEND_LINE:
+    Serial.println(this->mmwave.currentLine); // Debug output
     SerialRadar.println(this->mmwave.currentLine);
     if (this->mmwave.currentLine.startsWith("baudRate"))
     {
@@ -581,10 +582,12 @@ void Doppler::exec()
           // Proceed to next line
           if (this->mmwave.cfgString.length() > 0)
           {
+            Serial.println("LINE");
             this->mmwave.state = MMWAVE_READ_LINE;
           }
           else
           {
+            Serial.println("CONFIG DONE");
             this->mmwave.state = MMWAVE_DONE;
           }
           break;

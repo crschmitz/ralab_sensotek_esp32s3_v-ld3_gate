@@ -22,7 +22,7 @@ Usart::Usart()
 void Usart::handleIncomingJson(const String &incoming)
 {
   // 1) Validate JSON
-  StaticJsonDocument<2048> doc;
+  StaticJsonDocument<4096> doc;
   DeserializationError err = deserializeJson(doc, incoming);
   if (err)
   {
@@ -61,10 +61,14 @@ void Usart::handleIncomingJson(const String &incoming)
           // If crc is present, we could validate it here
           if (doc.containsKey("crc"))
           {
-            int crc = doc["crc"].as<int>();
+            uint32_t crc = doc["crc"].as<uint32_t>();
             uint32_t calc_crc = crc32_le(0, (const uint8_t *)cfg.c_str(), cfg.length());
+            Serial.print("CRC: ");
+            Serial.print(crc);
+            Serial.print(" Calc: ");
+            Serial.println(calc_crc);
             String result = "";
-            if (crc != (int)calc_crc)
+            if (crc != calc_crc)
             {
               result = "error";
             }
