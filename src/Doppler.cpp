@@ -58,16 +58,6 @@ typedef struct MmwDemo_output_message_UARTpoint_int16_t {
   int16_t noise;   /* 1 LSB = noiseUnit */
 } MmwDemo_output_message_UARTpoint_int16;
 
-struct TargetF {
-  uint32_t id;
-  float x, y, z;       // meters
-  float vx, vy, vz;    // m/s
-  float ax, ay, az;    // m/s^2
-  float g;             // gating gain
-  float confidence;    // 0..1 or 0..100 (we normalize to 0..1)
-  float ec[16];        // covariance matrix (optional use)
-};
-
 #pragma pack(pop)
 
 /* =========================================================================
@@ -114,6 +104,13 @@ uint16_t Pred(uint16_t i, uint16_t size) {
   if (!i--)
     i = size-1;
   return i;
+}
+
+// helper: add only if not already present
+inline void addUniqueUseCase(std::vector<UseCase_enum>& v, UseCase_enum uc) {
+    if (std::find(v.begin(), v.end(), uc) == v.end()) {
+        v.push_back(uc);
+    }
 }
 
 bool isHeaderValid(MmwDemo_output_message_header_t *header) {
@@ -298,6 +295,16 @@ bool Doppler::parseTargetListTLV_308(const uint8_t* tlvPayload, int length) {
 
   for (uint32_t i = 0; i < count; ++i) {
 
+    Target_t t = { 
+      tgt[i].tid,
+      tgt[i].posX, tgt[i].posY, tgt[i].posZ,
+      tgt[i].velX, tgt[i].velY, tgt[i].velZ,
+      tgt[i].accX, tgt[i].accY, tgt[i].accZ,
+      tgt[i].confidence,
+      tgt[i].g
+    };
+    this->mmwave.targets.push_back(t);
+
     if (i > 0) {
       this->jsonTargets += ","; // add comma between objects
     } 
@@ -480,6 +487,52 @@ void Doppler::handleStatusCommand(String incoming) {
   this->replyRes(incoming, resp);
 }
 
+void Doppler::handleUseCase() {
+  // If there are targets, analyze them to determine use cases
+  if (this->mmwave.targets.size() > 0) {
+    // ---- Cross Traffic evaluation ----
+    // Condition: target below 2m with |vx| above 0.3m/s and |vy| < 0.2m/s
+    for(size_t i = 0; i < this->mmwave.targets.size(); ++i) {
+      // Skip if too far in y
+      if (this->mmwave.targets[i].y > 2.0f)
+        continue;
+      // Simple heuristic rules to determine use case
+      if (fabs(this->mmwave.targets[i].vx) > 0.3 && fabs(this->mmwave.targets[i].vy) < 0.2) {
+        addUniqueUseCase(this->mmwave.useCases, UseCase_enum::CrossTraffic);
+      }
+    }
+
+    // ---- Tailgating (pair-based proximity) ----
+    // Condition: exists a pair (i, j) such that:
+    //    y < 2 m  AND  |x_i-x_j| <= 1 m  AND  |y_i-y_j| <= 1 m
+    bool tailgating = false;
+    // Check all pairs (i, j)
+    for (size_t i = 0; i < this->mmwave.targets.size() && !tailgating; ++i) {
+      // Skip if too far in y
+      if (this->mmwave.targets[i].y > 2.0f)
+        continue;
+      // Check all j > i
+      for (size_t j = i + 1; j < this->mmwave.targets.size(); ++j) {
+        // Skip if too far in y
+        if (this->mmwave.targets[j].y > 2.0f)
+          continue; // skip if too far in y
+
+        // Check proximity in x and y
+        float dy = fabs(this->mmwave.targets[i].y - this->mmwave.targets[j].y);
+        float dx = fabs(this->mmwave.targets[i].x - this->mmwave.targets[j].x);
+        if (dx <= 1 && dy <= 1) {
+          tailgating = true;
+          break;
+        }
+      }
+    }
+    // If found, add use case
+    if (tailgating) {
+      addUniqueUseCase(this->mmwave.useCases, UseCase_enum::Tailgating);
+    }
+  }
+}
+
 void Doppler::exec() {
   switch (this->mmwave.state) {
     case MMWAVE_IDLE:
@@ -590,6 +643,8 @@ void Doppler::exec() {
               this->jsonPoints = "";
               this->jsonTargets = "";
               this->mmwave.persons = 0;
+              this->mmwave.targets.clear();
+              this->mmwave.useCases.clear();
 
               // printHeader(&this->mmwave.rx.message.header);
             } else {
@@ -612,10 +667,18 @@ void Doppler::exec() {
                 this->jsonLine += ",\"res\":";
                 Serial.print(this->jsonLine);
 
+                this->handleUseCase();
+
                 String payload = this->jsonFrame;
                 payload += ",\"persons\":";
                 payload += String(this->mmwave.persons);
-                payload += ",\"use_case\":[]";
+                payload += ",\"use_case\":[";
+                for (size_t i = 0; i < this->mmwave.useCases.size(); ++i) {
+                    payload += String(static_cast<uint8_t>(this->mmwave.useCases[i]));  // convert enum to number
+                    if (i < this->mmwave.useCases.size() - 1)
+                        payload += ",";
+                }
+                payload += "]";
 
                 if (this->jsonTargets.length() > 0) {
                   payload += ",\"tgt\":[";

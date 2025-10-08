@@ -182,7 +182,6 @@ This table shows all planned use cases:
 _Table 1: Use Cases ID_
 
 
-
 ### Status message
 
 To read the status message, which includes firmware version, date and sensor state,  the following message can be used:
@@ -295,6 +294,22 @@ Data extracted from TLV 308 (Target List), part of the radar’s tracking engine
 
 ### 📄 Changelog
 
+- **V104 (08.10.2025)** 
+  - Tailgating and cross traffic use cases included
+
+> ### 🧭 Use Cases Conditions
+>
+> **Tailgating**
+> - Condition: exists a pair (i, j) such that  
+>   - `yᵢ < 2 m` and `yⱼ < 2 m`  
+>   - `|xᵢ − xⱼ| ≤ 1 m`  
+>   - `|yᵢ − yⱼ| ≤ 1 m`
+>
+> **Cross Traffic**
+> - Condition: target below 2 m
+> - `|vx| > 0.3 m/s` and `|vy| < 0.2 m/s`
+
+
 - **V103 (05.10.2025)** — Updates defined in the 01.10.2025 meeting (Yannik & Claudio):
   - All host↔ESP32 messages use the JSON schema described in this document.
   - ESP32 acts as a slave and only transmits on request via the `get` command.
@@ -303,3 +318,4 @@ Data extracted from TLV 308 (Target List), part of the radar’s tracking engine
   - ESP32 does not evaluate zones; it only reports targets. Zone logic is handled by the Linux host.
   - Higher measurement rates are supported (as defined in the `.cfg` file).
 - **v1.0**: Initial JSON schema for targets and zones
+

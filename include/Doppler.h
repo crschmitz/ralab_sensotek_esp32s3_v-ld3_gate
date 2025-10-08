@@ -5,6 +5,7 @@
 #include <FreeRTOS.h>
 #include <FS.h>     // Required for fs::File
 #include <FFat.h>   // Or SPIFFS.h or SD.h, depending on the FS used
+#include <vector>
 
 #define RX_SIZE               8192
 #define TX_SIZE               2048
@@ -27,6 +28,29 @@ typedef enum {
   MMWAVE_DONE,
   MMWAVE_TLV,
 } mmwave_state_e;
+
+typedef enum {
+  NoUseCase = 0,                  // 0 - Kein Anwendungsfall
+  Tailgating = 1,                 // 1 - Tailgating
+  Crouching = 2,                  // 2 - Unterkriechen
+  SafetyZoneViolation = 3,        // 3 - Sicherheitszonen
+  WrongDirection = 4,             // 4 - Gegenlaufverstoß
+  UnauthorizedClimbing = 5,       // 5 - Unerlaubtes Übersteigen
+  PassageWithTrolley = 6,         // 6 - Durchgang mit Trolley
+  UnauthorizedHoldingOpen = 7,    // 7 - Unerlaubtes Offenhalten
+  ForcingOpen = 8,                // 8 - Aufdrücken
+  SwingAreaMonitoring = 9,        // 9 - Überwachen des Schwenkbereiches
+  CrossTraffic = 10               // 10 - Querverkehr
+} UseCase_enum;
+
+typedef struct {
+  uint32_t id;
+  float x, y, z;       // meters
+  float vx, vy, vz;    // m/s
+  float ax, ay, az;    // m/s^2
+  float cf;            // confidence 0..1 or 0..100 (we normalize to 0..1)
+  float gf;            // gating gain
+} Target_t;
 
 typedef struct OutputMessageHeader {
   uint16_t magicWord[4];      /* Sync word: {0x0102,0x0304,0x0506,0x0708} */
@@ -87,6 +111,8 @@ public:
     uint64_t lastTick = 0;
     uint8_t retries = 0;
     uint32_t persons = 0;
+    std::vector<UseCase_enum> useCases;
+    std::vector<Target_t> targets;
   } mmwave;
 
 private:
@@ -95,6 +121,7 @@ private:
   String getNextLine();
   void replyRes(String incoming, String msg);
   void replyRes(String incoming, int value);
+  void handleUseCase();
 
   String jsonLine;
   String jsonFrame;

@@ -8,8 +8,8 @@ extern "C" {
   #include "esp32/rom/crc.h"
 }
 
-String FirmwareVersion = "103";
-String FirmwareDate    = "05.10.2025";
+String FirmwareVersion = "104";
+String FirmwareDate    = "08.10.2025";
 
 extern Config config;
 extern Doppler doppler;
