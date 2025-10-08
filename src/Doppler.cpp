@@ -61,17 +61,6 @@ typedef struct MmwDemo_output_message_UARTpoint_int16_t
   int16_t noise; /* 1 LSB = noiseUnit */
 } MmwDemo_output_message_UARTpoint_int16;
 
-struct TargetF
-{
-  uint32_t id;
-  float x, y, z;    // meters
-  float vx, vy, vz; // m/s
-  float ax, ay, az; // m/s^2
-  float g;          // gating gain
-  float confidence; // 0..1 or 0..100 (we normalize to 0..1)
-  float ec[16];     // covariance matrix (optional use)
-};
-
 #pragma pack(pop)
 
 /* =========================================================================
@@ -139,38 +128,63 @@ uint16_t Pred(uint16_t i, uint16_t size)
 }
 
 // helper: add only if not already present
-inline void addUniqueUseCase(std::vector<UseCase_enum>& v, UseCase_enum uc) {
-    if (std::find(v.begin(), v.end(), uc) == v.end()) {
-        v.push_back(uc);
-    }
+inline void addUniqueUseCase(std::vector<UseCase_enum> &v, UseCase_enum uc)
+{
+  if (std::find(v.begin(), v.end(), uc) == v.end())
+  {
+    v.push_back(uc);
+  }
 }
 
-bool isHeaderValid(MmwDemo_output_message_header_t *header) {
+bool isHeaderValid(MmwDemo_output_message_header_t *header)
+{
   // Check if the magic word matches
   if (memcmp(header->magicWord, MAGIC_WORD, sizeof(MAGIC_WORD)) != 0)
   {
+    // Serial.printf("Invalid magic word...\r\n");
     return false;
   }
 
   // Check if the platform type is valid
   if (header->platform != PLATFORM_TYPE)
   {
+    // Serial.printf("Invalid platform type: %08X\r\n", header->platform);
     return false;
   }
 
   // Check if packet length is valid
   if (header->totalPacketLen < sizeof(MmwDemo_output_message_header_t) || header->totalPacketLen % 32 != 0)
   {
+    // Serial.printf("Invalid total packet length: %u\r\n", header->totalPacketLen);
     return false;
   }
 
   // Check if packet length is valid
   if (header->totalPacketLen >= RX_SIZE)
   {
+    // Serial.printf("Message exceeds size: %u\r\n", header->totalPacketLen);
     return false;
   }
 
   return true;
+}
+
+// Printing function
+void printHeader(MmwDemo_output_message_header_t *header)
+{
+  Serial.printf("magicWord   : ");
+  for (int i = 0; i < 4; ++i)
+    Serial.printf("%04X", header->magicWord[i]);
+  Serial.println();
+  Serial.printf("version     : 0x%08X\r\n", header->version);
+  Serial.printf("totalPktLen : %u\r\n", header->totalPacketLen);
+  Serial.printf("platform    : 0x%08X\r\n", header->platform);
+  Serial.printf("frameNumber : %u\r\n", header->frameNumber);
+  Serial.printf("tCpuCycles  : %u\r\n", header->timeCpuCycles);
+  Serial.printf("numDetectObj: %u\r\n", header->numDetectedObj);
+  Serial.printf("numTLVs     : %u\r\n", header->numTLVs);
+  Serial.printf("subFrameNum.: 0x%08X\r\n", header->subFrameNumber);
+  Serial.printf("========================================\r\n");
 }
 
 #pragma pack(push, 1)
@@ -329,19 +343,20 @@ bool Doppler::parseTargetListTLV_308(const uint8_t *tlvPayload, int length)
 
   this->mmwave.persons = count;
 
-  for (uint32_t i = 0; i < count; ++i) {
+  for (uint32_t i = 0; i < count; ++i)
+  {
 
-    Target_t t = { 
-      tgt[i].tid,
-      tgt[i].posX, tgt[i].posY, tgt[i].posZ,
-      tgt[i].velX, tgt[i].velY, tgt[i].velZ,
-      tgt[i].accX, tgt[i].accY, tgt[i].accZ,
-      tgt[i].confidence,
-      tgt[i].g
-    };
+    Target_t t = {
+        tgt[i].tid,
+        tgt[i].posX, tgt[i].posY, tgt[i].posZ,
+        tgt[i].velX, tgt[i].velY, tgt[i].velZ,
+        tgt[i].accX, tgt[i].accY, tgt[i].accZ,
+        tgt[i].confidence,
+        tgt[i].g};
     this->mmwave.targets.push_back(t);
 
-    if (i > 0) {
+    if (i > 0)
+    {
       this->jsonTargets += ","; // add comma between objects
     }
     this->jsonTargets += "{";
@@ -382,6 +397,12 @@ bool Doppler::parseTargetListTLV_308(const uint8_t *tlvPayload, int length)
     this->jsonTargets += String(tgt[i].g, 3);
 
     this->jsonTargets += "}";
+
+    // Print id, position (m), velocity (m/s)
+    // Serial.printf("@TGT id=%u pos=(%.2f, %.2f, %.2f) m vel=(%.2f, %.2f, %.2f) m/s\n",
+    //               (unsigned)tgt[i].tid,
+    //               tgt[i].posX, tgt[i].posY, tgt[i].posZ,
+    //               tgt[i].velX, tgt[i].velY, tgt[i].velZ);
   }
   return true;
 }
@@ -403,6 +424,7 @@ bool Doppler::parseTLVs(uint8_t *buffer)
     // Ensure at least 8 bytes are available for TLV header
     if (tlvPtr + 8 > endPtr)
     {
+      // Serial.printf("Error: TLV #%u header out of bounds (offset %ld)\r\n", i + 1, tlvPtr - buffer);
       break;
     }
 
@@ -410,6 +432,19 @@ bool Doppler::parseTLVs(uint8_t *buffer)
     uint32_t tlvType, tlvLength;
     memcpy(&tlvType, tlvPtr, sizeof(uint32_t));
     memcpy(&tlvLength, tlvPtr + 4, sizeof(uint32_t));
+
+    // Serial.printf("TLV #%u\r\n", i + 1);
+    // // Serial.printf("  Offset : %ld\r\n", tlvPtr - buffer);
+    // Serial.printf("  Type   : %u\r\n", tlvType);
+    // Serial.printf("  Length : %u bytes\r\n", tlvLength);
+
+    // // Print raw TLV header bytes for debugging
+    // Serial.printf("  Raw header: ");
+    // for (int k = 0; k < 8; ++k) {
+    //   Serial.printf("%02X ", tlvPtr[k]);
+    // }
+    // Serial.printf("\r\n");
+
     // Extract payload and print preview
     uint8_t *payload = tlvPtr + 8;
     size_t payloadLength = tlvLength - 8;
@@ -432,8 +467,18 @@ bool Doppler::parseTLVs(uint8_t *buffer)
     // Bounds check for the full TLV (header + payload)
     if (tlvPtr + tlvLength > endPtr)
     {
+      // Serial.printf("  Error: TLV data exceeds packet length!\r\n");
       break;
     }
+
+    // Serial.printf("  Payload (first 32 bytes or less): ");
+    // for (size_t j = 0; j < payloadLength && j < 32; ++j) {
+    //   Serial.printf("%02X ", payload[j]);
+    // }
+    // if (payloadLength > 32) {
+    //   Serial.printf("...");
+    // }
+    // Serial.printf("\r\n");
 
     // Advance to next TLV
     tlvPtr += tlvLength + 8;
@@ -513,17 +558,21 @@ void Doppler::handleStatusCommand(String incoming)
   this->replyRes(incoming, resp);
 }
 
-void Doppler::handleUseCase() {
+void Doppler::handleUseCase()
+{
   // If there are targets, analyze them to determine use cases
-  if (this->mmwave.targets.size() > 0) {
+  if (this->mmwave.targets.size() > 0)
+  {
     // ---- Cross Traffic evaluation ----
     // Condition: target below 2m with |vx| above 0.3m/s and |vy| < 0.2m/s
-    for(size_t i = 0; i < this->mmwave.targets.size(); ++i) {
+    for (size_t i = 0; i < this->mmwave.targets.size(); ++i)
+    {
       // Skip if too far in y
       if (this->mmwave.targets[i].y > 2.0f)
         continue;
       // Simple heuristic rules to determine use case
-      if (fabs(this->mmwave.targets[i].vx) > 0.3 && fabs(this->mmwave.targets[i].vy) < 0.2) {
+      if (fabs(this->mmwave.targets[i].vx) > 0.3 && fabs(this->mmwave.targets[i].vy) < 0.2)
+      {
         addUniqueUseCase(this->mmwave.useCases, UseCase_enum::CrossTraffic);
       }
     }
@@ -533,12 +582,14 @@ void Doppler::handleUseCase() {
     //    y < 2 m  AND  |x_i-x_j| <= 1 m  AND  |y_i-y_j| <= 1 m
     bool tailgating = false;
     // Check all pairs (i, j)
-    for (size_t i = 0; i < this->mmwave.targets.size() && !tailgating; ++i) {
+    for (size_t i = 0; i < this->mmwave.targets.size() && !tailgating; ++i)
+    {
       // Skip if too far in y
       if (this->mmwave.targets[i].y > 2.0f)
         continue;
       // Check all j > i
-      for (size_t j = i + 1; j < this->mmwave.targets.size(); ++j) {
+      for (size_t j = i + 1; j < this->mmwave.targets.size(); ++j)
+      {
         // Skip if too far in y
         if (this->mmwave.targets[j].y > 2.0f)
           continue; // skip if too far in y
@@ -546,23 +597,60 @@ void Doppler::handleUseCase() {
         // Check proximity in x and y
         float dy = fabs(this->mmwave.targets[i].y - this->mmwave.targets[j].y);
         float dx = fabs(this->mmwave.targets[i].x - this->mmwave.targets[j].x);
-        if (dx <= 1 && dy <= 1) {
+        if (dx <= 1 && dy <= 1)
+        {
           tailgating = true;
           break;
         }
       }
     }
     // If found, add use case
-    if (tailgating) {
+    if (tailgating)
+    {
       addUniqueUseCase(this->mmwave.useCases, UseCase_enum::Tailgating);
     }
   }
 }
 
-void Doppler::exec() {
-  switch (this->mmwave.state) {
-    case MMWAVE_IDLE:
-      if (this->mmwave.cfgString.length() > 0) {
+void Doppler::exec()
+{
+  switch (this->mmwave.state)
+  {
+  case MMWAVE_IDLE:
+    if (this->mmwave.cfgString.length() > 0)
+    {
+      this->mmwave.state = MMWAVE_READ_LINE;
+    }
+    break;
+
+  case MMWAVE_READ_LINE:
+    this->mmwave.currentLine = this->getNextLine();
+    // If it's a non-comment nor empty line, send it
+    if (!this->mmwave.currentLine.startsWith("%") && !this->mmwave.currentLine.isEmpty())
+    {
+      this->mmwave.retries = 0;
+      this->mmwave.state = MMWAVE_SEND_LINE;
+    }
+    break;
+
+  case MMWAVE_SEND_LINE:
+    Serial.println(this->mmwave.currentLine);
+
+    SerialRadar.println(this->mmwave.currentLine);
+    if (this->mmwave.currentLine.startsWith("baudRate"))
+    {
+      int spaceIndex = this->mmwave.currentLine.indexOf(' ');
+      if (spaceIndex > 0)
+      {
+        String baudStr = this->mmwave.currentLine.substring(spaceIndex + 1); // "1250000"
+        long baud = baudStr.toInt();                                         // convert to integer
+        // Serial.printf("Changing baud rate to %ld bps\r\n", baud);
+        // ✅ Ensure last message really went out
+        SerialRadar.flush();
+        // Now it's safe to switch
+        SerialRadar.end();
+        SerialRadar.begin(baud, SERIAL_8N1, RADAR_RX, RADAR_TX);
+        // Don't wait for echo, just proceed to next line
         this->mmwave.state = MMWAVE_READ_LINE;
       }
     }
@@ -605,18 +693,18 @@ void Doppler::exec() {
         String received((char *)this->mmwave.rx.message.buffer);
         received.trim();
 
+        // Serial.println(received);
+
         // Check for expected echo
         if (received.equalsIgnoreCase("Done"))
         {
           // Proceed to next line
           if (this->mmwave.cfgString.length() > 0)
           {
-            Serial.println("LINE");
             this->mmwave.state = MMWAVE_READ_LINE;
           }
           else
           {
-            Serial.println("CONFIG DONE");
             this->mmwave.state = MMWAVE_DONE;
           }
           break;
@@ -661,74 +749,62 @@ void Doppler::exec() {
             this->jsonFrame += String(elapsed);
             this->jsonPoints = "";
             this->jsonTargets = "";
-          }
-        // Receive the header until it's complete
-        } else if (this->mmwave.rx.ctr < sizeof(MmwDemo_output_message_header_t)) {
-          this->mmwave.rx.message.buffer[this->mmwave.rx.ctr++] = c;
-          // Else header is complete...
-          if (this->mmwave.rx.ctr == sizeof(MmwDemo_output_message_header_t)) {
-            // If header is not valid, reset counter
-            if (isHeaderValid(&this->mmwave.rx.message.header)) {
-              const uint32_t elapsed = doppler.getInterval(&doppler.mmwave.lastTick);
-              this->jsonFrame = "{\"frame\":";
-              this->jsonFrame += this->mmwave.rx.message.header.frameNumber;
-              this->jsonFrame += ",\"dt\":";
-              this->jsonFrame += String(elapsed);
-              this->jsonPoints = "";
-              this->jsonTargets = "";
-              this->mmwave.persons = 0;
-              this->mmwave.targets.clear();
-              this->mmwave.useCases.clear();
+            this->mmwave.persons = 0;
+            this->mmwave.targets.clear();
+            this->mmwave.useCases.clear();
 
-              // printHeader(&this->mmwave.rx.message.header);
-            } else {
-              // Serial.println("Invalid header received!");
-              this->mmwave.rx.ctr = 0; // Reset counter
-            }
+            // printHeader(&this->mmwave.rx.message.header);
+          }
+          else
+          {
+            // Serial.println("Invalid header received!");
+            this->mmwave.rx.ctr = 0; // Reset counter
           }
         }
         // Else receive the TLV data
-        } else if (this->mmwave.rx.ctr < this->mmwave.rx.message.header.totalPacketLen) {
-          this->mmwave.rx.message.buffer[this->mmwave.rx.ctr++] = c;
-          // If message is complete...
-          if (this->mmwave.rx.ctr == this->mmwave.rx.message.header.totalPacketLen) {
-            // Parse TLVs
-            if (parseTLVs(this->mmwave.rx.message.buffer)) {
-              if (this->jsonLine.length() > 0) {
-                int pos = this->jsonLine.lastIndexOf('}');
-                if (pos >= 0) {
-                  this->jsonLine.remove(pos);
-                }
-                this->jsonLine += ",\"res\":";
-                Serial.print(this->jsonLine);
+      }
+      else if (this->mmwave.rx.ctr < this->mmwave.rx.message.header.totalPacketLen)
+      {
+        this->mmwave.rx.message.buffer[this->mmwave.rx.ctr++] = c;
+        // If message is complete...
+        if (this->mmwave.rx.ctr == this->mmwave.rx.message.header.totalPacketLen)
+        {
+          // Parse TLVs
+          if (parseTLVs(this->mmwave.rx.message.buffer))
+          {
+            if (this->jsonLine.length() > 0)
+            {
+              int pos = this->jsonLine.lastIndexOf('}');
+              if (pos >= 0)
+              {
+                this->jsonLine.remove(pos);
+              }
+              this->jsonLine += ",\"res\":";
+              Serial.print(this->jsonLine);
 
-                this->handleUseCase();
+              this->handleUseCase();
 
-                String payload = this->jsonFrame;
-                payload += ",\"persons\":";
-                payload += String(this->mmwave.persons);
-                payload += ",\"use_case\":[";
-                for (size_t i = 0; i < this->mmwave.useCases.size(); ++i) {
-                    payload += String(static_cast<uint8_t>(this->mmwave.useCases[i]));  // convert enum to number
-                    if (i < this->mmwave.useCases.size() - 1)
-                        payload += ",";
-                }
-                payload += "]";
+              String payload = this->jsonFrame;
+              payload += ",\"persons\":";
+              payload += String(this->mmwave.persons);
+              payload += ",\"use_case\":[";
+              for (size_t i = 0; i < this->mmwave.useCases.size(); ++i)
+              {
+                payload += String(static_cast<uint8_t>(this->mmwave.useCases[i])); // convert enum to number
+                if (i < this->mmwave.useCases.size() - 1)
+                  payload += ",";
+              }
+              payload += "]";
 
-                if (this->jsonTargets.length() > 0) {
-                  payload += ",\"tgt\":[";
-                  payload += this->jsonTargets + "]";
-                }
-                if (this->jsonPoints.length() > 0) {
-                  payload += ",\"raw\":[";
-                  payload += this->jsonPoints + "]";
-                }
-                payload += "}";
-                uint32_t crc = crc32_le(0, (const uint8_t*)payload.c_str(), payload.length());
-                payload += ",\"crc\":" + String(crc);
-                Serial.print(payload);
-                Serial.println("}");
-                this->jsonLine = "";
+              if (this->jsonTargets.length() > 0)
+              {
+                payload += ",\"tgt\":[";
+                payload += this->jsonTargets + "]";
+              }
+              if (this->jsonPoints.length() > 0)
+              {
+                payload += ",\"raw\":[";
+                payload += this->jsonPoints + "]";
               }
               payload += "}";
               uint32_t crc = crc32_le(0, (const uint8_t *)payload.c_str(), payload.length());
