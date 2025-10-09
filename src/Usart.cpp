@@ -43,8 +43,8 @@ void Usart::handleIncomingJson(const String &incoming)
     if (doc.containsKey("cmd"))
     {
       String cmd = doc["cmd"].as<const char *>();
-      // If command is "get", save the JSON line to Doppler
-      if (cmd == "get")
+      // If command is "get" or "raw", save the JSON line to Doppler
+      if (cmd == "get" || cmd == "raw")
       {
         doppler.handleGetCommand(incoming);
       }

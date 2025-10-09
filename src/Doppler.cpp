@@ -326,6 +326,25 @@ bool Doppler::parsePointCloudExtTLV(const uint8_t *payload, int length)
       v = p->doppler * dopplerUnit;
       snr = ((float)p->snr) * snrUnit;
     }
+
+    if (i > 0)
+    {
+      this->jsonPoints += ","; // add comma between objects
+    }
+    this->jsonPoints += "{";
+    this->jsonPoints += "\"id\":";
+    this->jsonPoints += String(i);
+    this->jsonPoints += ",\"x\":";
+    this->jsonPoints += String(x, 3);
+    this->jsonPoints += ",\"y\":";
+    this->jsonPoints += String(y, 3);
+    this->jsonPoints += ",\"z\":";
+    this->jsonPoints += String(z, 3);
+    this->jsonPoints += ",\"v\":";
+    this->jsonPoints += String(v, 3);
+    this->jsonPoints += ",\"snr\":";
+    this->jsonPoints += String(snr, 3);
+    this->jsonPoints += "}";
   }
   return true;
 }
@@ -434,7 +453,7 @@ bool Doppler::parseTLVs(uint8_t *buffer)
     memcpy(&tlvLength, tlvPtr + 4, sizeof(uint32_t));
 
     // Serial.printf("TLV #%u\r\n", i + 1);
-    // // Serial.printf("  Offset : %ld\r\n", tlvPtr - buffer);
+    // // // Serial.printf("  Offset : %ld\r\n", tlvPtr - buffer);
     // Serial.printf("  Type   : %u\r\n", tlvType);
     // Serial.printf("  Length : %u bytes\r\n", tlvLength);
 
@@ -801,11 +820,14 @@ void Doppler::exec()
                 payload += ",\"tgt\":[";
                 payload += this->jsonTargets + "]";
               }
-              if (this->jsonPoints.length() > 0)
+
+              if (this->jsonLine.indexOf("raw") >= 0)
               {
                 payload += ",\"raw\":[";
                 payload += this->jsonPoints + "]";
               }
+
+
               payload += "}";
               uint32_t crc = crc32_le(0, (const uint8_t *)payload.c_str(), payload.length());
               payload += ",\"crc\":" + String(crc);
