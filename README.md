@@ -137,7 +137,8 @@ Send a `cfg` message (with `file` and `crc32`) before requesting frames again.
 
   * For `get` replies like `{"id":1,"cmd":"get","res":{...},"crc":377880932}\r\n`:
     CRC is over the **`res` object bytes only** — from the `{` right after `"res":` to its matching `}` (inclusive), exactly as received.
-* **Algorithm:** CRC-32/MPEG-2 (poly `0x04C11DB7`, init `0xFFFFFFFF`, refin/refout **false/false**, xorout `0x00000000`).
+* **Algorithm:** CRC-32/CKSUM (poly 0x04C11DB7, init 0x00000000, refin/refout true/true, xorout 0x00000000).
+
 * **Procedure:** read the line as **bytes** → slice the `res` `{...}` span → CRC-32/MPEG-2 on that slice → compare with `crc` (decimal).
 
 On ESP32, the CRC is calculated with this function:
@@ -180,7 +181,6 @@ This table shows all planned use cases:
 | Querverkehr | 10  |
 
 _Table 1: Use Cases ID_
-
 
 ### Status message
 
@@ -257,6 +257,7 @@ sensorStart 0 0 0 0
 | `cmd` | string | Command verb (`get`, `cfg`, `status`). |
 | `res` | object or string | Reply payload — object on success (e.g., frame data) or string on status/error (`"busy"`, `"error"`). |
 | `crc` | uint32 (decimal) | **Detection replies only:** CRC over the raw bytes of `res` (see CRC note). |
+
 ### 🔹 frame Object
 
 | Field | Type | Description                                |
@@ -291,8 +292,41 @@ Data extracted from TLV 308 (Target List), part of the radar’s tracking engine
 - Units are metric;
 - If no targets are detected in a frame, the `tgt` array will be empty or omitted inside `res`.
 
+### Raw Point Cloud — "raw" Field
+
+When the "cmd" is "raw", the JSON response is a superset of the "get" response.
+All fields present in "get" are still provided (e.g., res.frame, res.dt, res.persons, res.use_case, res.tgt, …), plus an extra array res.raw that carries the instantaneous radar detections (point cloud) for the current frame.
+
+Message from host :arrow_right: ESP32
+
+```json
+{"id":1,"cmd":"raw}␍␊
+```
+
+The ESP32 will reply the same message obtained with the "get" command, but adding the field "raw". 
+
+```json
+{"id":1,"cmd":"raw","res":{"frame":173660,"dt":100,"persons":1,"use_case":[],"tgt":[{"id":0,"x":-0.135,"y":0.773,"z":0.000,"vx":-0.058,"vy":0.109,"vz":-0.000,"ax":-0.154,"ay":0.469,"az":0.000,"cf":0.997,"gf":3.000}],"raw":[{"id":0,"x":-0.144,"y":0.730,"z":0.000,"v":0.321,"snr":17.500},{"id":1,"x":-0.140,"y":0.743,"z":0.000,"v":0.321,"snr":16.750}]},"crc":1225987504}␍␊
+```
+
+In case there are no raw detections, the "raw" field is reported empty ("raw":[]).
+
+Each element of "raw" corresponds to one radar detection point, with the following fields:
+
+| Field | Type       | Units                   | Description                                                                                                                                                   |
+| ----- | ---------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`  | `uint32_t` | —                       | Point index within the current frame (starting with 0)(0-based).                                                                                                               |
+| `x`   | `float`    | meters (m)              | Cartesian X-coordinate of the detected point relative to the sensor. Positive X usually points **right** from the radar’s perspective.                        |
+| `y`   | `float`    | meters (m)              | Cartesian Y-coordinate (forward distance) relative to the radar.                                                                                              |
+| `z`   | `float`    | meters (m)              | Cartesian Z-coordinate (height). Often near zero for ground-plane measurements.                                                                               |
+| `v`   | `float`    | meters per second (m/s) | **Radial velocity** of the detection (Doppler-measured). Positive indicates the object is **moving away** from the radar; negative indicates **approaching**. |
+| `snr` | `float`    | decibels (dB)           | **Signal-to-Noise Ratio** of the detection, indicating detection strength or confidence. Higher values correspond to stronger reflections.                    |
 
 ### 📄 Changelog
+
+- **V104 (12.10.2025)**
+  - Included "raw" command - same reply as "get", but including cloud of points ("raw" field is added as explained in this README).
+  - Fixed CRC descrition
 
 - **V104 (08.10.2025)** 
   - Tailgating and cross traffic use cases included
@@ -300,15 +334,16 @@ Data extracted from TLV 308 (Target List), part of the radar’s tracking engine
 > ### 🧭 Use Cases Conditions
 >
 > **Tailgating**
+> 
 > - Condition: exists a pair (i, j) such that  
 >   - `yᵢ < 2 m` and `yⱼ < 2 m`  
 >   - `|xᵢ − xⱼ| ≤ 1 m`  
 >   - `|yᵢ − yⱼ| ≤ 1 m`
 >
 > **Cross Traffic**
+> 
 > - Condition: target below 2 m
 > - `|vx| > 0.3 m/s` and `|vy| < 0.2 m/s`
-
 
 - **V103 (05.10.2025)** — Updates defined in the 01.10.2025 meeting (Yannik & Claudio):
   - All host↔ESP32 messages use the JSON schema described in this document.
@@ -318,4 +353,3 @@ Data extracted from TLV 308 (Target List), part of the radar’s tracking engine
   - ESP32 does not evaluate zones; it only reports targets. Zone logic is handled by the Linux host.
   - Higher measurement rates are supported (as defined in the `.cfg` file).
 - **v1.0**: Initial JSON schema for targets and zones
-

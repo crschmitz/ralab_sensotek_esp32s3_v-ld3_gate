@@ -9,7 +9,7 @@ extern "C"
 }
 
 String FirmwareVersion = "104";
-String FirmwareDate    = "08.10.2025";
+String FirmwareDate    = "12.10.2025";
 
 extern Doppler doppler;
 

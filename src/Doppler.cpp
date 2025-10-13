@@ -452,17 +452,21 @@ bool Doppler::parseTLVs(uint8_t *buffer)
     memcpy(&tlvType, tlvPtr, sizeof(uint32_t));
     memcpy(&tlvLength, tlvPtr + 4, sizeof(uint32_t));
 
-    // Serial.printf("TLV #%u\r\n", i + 1);
-    // // // Serial.printf("  Offset : %ld\r\n", tlvPtr - buffer);
-    // Serial.printf("  Type   : %u\r\n", tlvType);
-    // Serial.printf("  Length : %u bytes\r\n", tlvLength);
+    // if (this->jsonLine.length() > 0)
+    // {
+    //   Serial.printf("TLV #%u\r\n", i + 1);
+    //   // // Serial.printf("  Offset : %ld\r\n", tlvPtr - buffer);
+    //   Serial.printf("  Type   : %u\r\n", tlvType);
+    //   Serial.printf("  Length : %u bytes\r\n", tlvLength);
 
-    // // Print raw TLV header bytes for debugging
-    // Serial.printf("  Raw header: ");
-    // for (int k = 0; k < 8; ++k) {
-    //   Serial.printf("%02X ", tlvPtr[k]);
+    //   // Print raw TLV header bytes for debugging
+    //   Serial.printf("  Raw header: ");
+    //   for (int k = 0; k < 8; ++k) 
+    //   {
+    //     Serial.printf("%02X ", tlvPtr[k]);
+    //   }
+    //   Serial.printf("\r\n");
     // }
-    // Serial.printf("\r\n");
 
     // Extract payload and print preview
     uint8_t *payload = tlvPtr + 8;
@@ -826,7 +830,6 @@ void Doppler::exec()
                 payload += ",\"raw\":[";
                 payload += this->jsonPoints + "]";
               }
-
 
               payload += "}";
               uint32_t crc = crc32_le(0, (const uint8_t *)payload.c_str(), payload.length());
